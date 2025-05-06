@@ -1,0 +1,89 @@
+<bg anchor-pos-x="15" anchor-pos-y="-5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/RedBrumbler/Quest-BSML-Docs/gh-pages/schema.xsd">
+    <vertical id="layout" spacing="2" child-control-height="false" child-expand-height="false">
+
+        <horizontal bg="round-rect-panel" bg-alpha="0.6" pad-left="2" pad-right="2" horizontal-fit="PreferredSize">
+            <text text="Settings" font-size="6" />
+        </horizontal>
+
+        <vertical bg="round-rect-panel" bg-alpha="0.6" pad="2" pad-left="3" spacing="1" horizontal-fit="PreferredSize" vertical-fit="PreferredSize">
+            <toggle-setting id="enableToggle" text="Enable Mod" hover-hint="Disable this to stop the mod from running in maps"
+                pref-width="75" on-change="enableToggled" />
+            <horizontal spacing="2" pref-width="75">
+                <dropdown-list-setting id="profileDropdown" text="Profile" hover-hint="Profiles store all your selected models and their settings"
+                    flex-width="1" on-change="profileSelected" />
+                <button id="renameProfileButton" text="" hover-hint="Rename profile" on-click="renameProfilePressed" />
+                <button id="duplicateProfileButton" text="" hover-hint="Duplicate profile" on-click="duplicateProfilePressed" />
+                <button id="deleteProfileButton" text="" hover-hint="Delete profile" on-click="deleteProfilePressed" />
+            </horizontal>
+        </vertical>
+
+        <vertical id="saberSettings" bg="round-rect-panel" bg-alpha="0.6" pad="2" spacing="1" horizontal-fit="PreferredSize"
+            vertical-fit="PreferredSize">
+            <horizontal spacing="1" hover-hint="Modify the length of the saber model - has no effect on the hitbox">
+                <image src="CustomModels_saber_length" preserve-aspect="true" />
+                <slider-setting id="saberLengthSlider" text="Saber Length" pref-width="60" min="0" max="2" increment="0.05"
+                    on-change="saberLengthChanged" />
+                <toggle-setting id="saberLengthToggle" text="" pref-width="20" on-change="saberLengthToggled" />
+            </horizontal>
+
+            <horizontal spacing="1" hover-hint="Modify the width of the saber model - has no effect on the hitbox">
+                <image src="CustomModels_saber_width" preserve-aspect="true" />
+                <slider-setting id="saberWidthSlider" text="Saber Width" pref-width="60" min="0" max="2" increment="0.01"
+                    on-change="saberWidthChanged" />
+                <toggle-setting id="saberWidthToggle" text="" pref-width="20" on-change="saberWidthToggled" />
+            </horizontal>
+        </vertical>
+
+        <vertical id="trailSettings" bg="round-rect-panel" bg-alpha="0.6" pad="2" spacing="1" horizontal-fit="PreferredSize"
+            vertical-fit="PreferredSize" active="false">
+            <horizontal pad-left="1">
+                <toggle-setting id="whiteTrailToggle" text="Disable White Trail" hover-hint="Toggles the initial white part of trails"
+                    pref-width="86" on-change="whiteTrailToggled" />
+            </horizontal>
+
+            <horizontal spacing="1" hover-hint="Modify the duration, or length, of saber trails">
+                <image src="CustomModels_trail_duration" preserve-aspect="true" />
+                <slider-setting id="trailDurationSlider" text="Trail Duration" pref-width="60" min="0" max="2" increment="0.01"
+                    on-change="trailDurationChanged" />
+                <toggle-setting id="trailDurationToggle" text="" pref-width="20" on-change="trailDurationToggled" />
+            </horizontal>
+
+            <horizontal spacing="1" hover-hint="Modify the width of saber trails">
+                <image src="CustomModels_trail_width" preserve-aspect="true" />
+                <slider-setting id="trailWidthSlider" text="Trail Width" pref-width="60" min="0" max="1" increment="0.01"
+                    on-change="trailWidthChanged" />
+                <toggle-setting id="trailWidthToggle" text="" pref-width="20" on-change="trailWidthToggled" />
+            </horizontal>
+
+            <horizontal spacing="1" pad-right="1" hover-hint="Modify the offset of saber trails along the saber">
+                <image src="CustomModels_trail_offset" preserve-aspect="true" />
+                <slider-setting id="trailOffsetSlider" text="Trail Offset" pref-width="80" min="-0.5" max="0.5" increment="0.01"
+                    on-change="trailOffsetChanged" />
+            </horizontal>
+        </vertical>
+
+        <vertical id="notesSettings" bg="round-rect-panel" bg-alpha="0.6" pad="2" spacing="1" horizontal-fit="PreferredSize"
+            vertical-fit="PreferredSize" active="false">
+            <horizontal spacing="1" hover-hint="Modify the size of notes - has no effect on hitboxes">
+                <image src="CustomModels_note_size" preserve-aspect="true" />
+                <slider-setting id="noteSizeSlider" text="Note Size" pref-width="60" min="0.25" max="1" increment="0.01"
+                    on-change="noteSizeChanged" />
+                <toggle-setting id="noteSizeToggle" text="" pref-width="20" on-change="noteSizeToggled" />
+            </horizontal>
+
+            <horizontal spacing="1" hover-hint="Always use default bombs regardless of selected custom note">
+                <image src="CustomModels_bomb" pref-width="6" pref-height="6" preserve-aspect="true" />
+                <toggle-setting id="defaultBombsToggle" text="Default Bombs" pref-width="80" on-change="defaultBombsToggled" />
+            </horizontal>
+
+            <horizontal spacing="1" hover-hint="Always use default debris regardless of selected custom note">
+                <image src="CustomModels_debris" pref-width="6" pref-height="6" preserve-aspect="true" />
+                <toggle-setting id="defaultDebrisToggle" text="Default Debris" pref-width="80" on-change="defaultDebrisToggled" />
+            </horizontal>
+        </vertical>
+    </vertical>
+    <modal id="profileNameModal" size-delta-x="65" size-delta-y="15" anchor-pos-x="0" anchor-pos-y="10" click-off-closes="true">
+        <text text="Enter new profile name" size-delta-x="50" size-delta-y="8" anchor-pos-y="4.5" align="Bottom" />
+    </modal>
+</bg>

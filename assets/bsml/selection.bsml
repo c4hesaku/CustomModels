@@ -1,0 +1,20 @@
+<bg xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/RedBrumbler/Quest-BSML-Docs/gh-pages/schema.xsd">
+    <vertical id="layout" spacing="1">
+        <horizontal spacing="2">
+            <horizontal pref-width="30" pref-height="7">
+                <icon-segments id="modelTypeSelector" data="modelTypeData" select-cell="modelTypeSelected" />
+            </horizontal>
+            <horizontal id="searchHorizontal" pref-width="50" />
+        </horizontal>
+        <horizontal id="sabersHorizontal" pref-height="7" pad-bottom="1" spacing="2" child-expand-width="false" child-align="MiddleCenter">
+            <tab-select tab-tag="saberOrTrail" select-cell="saberOrTrailSelected" />
+            <tab tags="saberOrTrail" tab-name="Saber" />
+            <tab tags="saberOrTrail" tab-name="Trail" />
+            <tab-select tab-tag="menuPointer" select-cell="menuPointerSelected" />
+            <tab tags="menuPointer" tab-name="Ingame" />
+            <tab tags="menuPointer" tab-name="Menu" />
+        </horizontal>
+        <list id="modelList" content="modelListData" select-cell="modelSelected" show-scrollbar="true" />
+    </vertical>
+</bg>

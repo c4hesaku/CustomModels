@@ -1,0 +1,44 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Lauriethefish/QuestPatcher.QMod/main/QuestPatcher.QMod/Resources/qmod.schema.json",
+  "_QPVersion": "0.1.1",
+  "name": "${mod_name}",
+  "id": "${mod_id}",
+  "author": "Metalit",
+  "version": "${version}",
+  "packageId": "com.beatgames.beatsaber",
+  "packageVersion": "1.40.4_5283",
+  "description": "Lets you play with custom models for sabers, notes, and walls!",
+  "dependencies": [],
+  "libraryFiles": [],
+  "fileCopies": [],
+  "copyExtensions": [
+    {
+      "extension": "whacker",
+      "destination": "/sdcard/ModData/com.beatgames.beatsaber/Mods/CustomModels/Sabers/"
+    },
+    {
+      "extension": "cyoob",
+      "destination": "/sdcard/ModData/com.beatgames.beatsaber/Mods/CustomModels/Notes/"
+    },
+    {
+      "extension": "box",
+      "destination": "/sdcard/ModData/com.beatgames.beatsaber/Mods/CustomModels/Walls/"
+    },
+    {
+      "extension": "qsaber",
+      "destination": "/sdcard/ModData/com.beatgames.beatsaber/Mods/CustomModels/Legacy/"
+    },
+    {
+      "extension": "qbloq",
+      "destination": "/sdcard/ModData/com.beatgames.beatsaber/Mods/CustomModels/Legacy/"
+    },
+    {
+      "extension": "qwall",
+      "destination": "/sdcard/ModData/com.beatgames.beatsaber/Mods/CustomModels/Legacy/"
+    },
+    {
+      "extension": "zip",
+      "destination": "/sdcard/ModData/com.beatgames.beatsaber/Mods/CustomModels/Zips/"
+    }
+  ]
+}

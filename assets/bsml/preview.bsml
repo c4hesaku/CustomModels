@@ -1,0 +1,10 @@
+<bg anchor-pos-x="-15" anchor-pos-y="-5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/RedBrumbler/Quest-BSML-Docs/gh-pages/schema.xsd">
+    <vertical id="layout" spacing="2" child-control-height="false" child-expand-height="false">
+        <horizontal bg="round-rect-panel" bg-alpha="0.6" pad-left="2" pad-right="2" horizontal-fit="PreferredSize">
+            <text text="Preview" font-size="6" />
+        </horizontal>
+
+        <bg id="parent" />
+    </vertical>
+</bg>
