@@ -9,6 +9,7 @@
 #include "UnityEngine/Quaternion.hpp"
 #include "UnityEngine/Transform.hpp"
 #include "main.hpp"
+#include "utils.hpp"
 
 static GlobalNamespace::SaberTrailRenderer* trailRendererPrefab;
 static UnityEngine::GameObject* defaultSaberPrefab;
@@ -52,7 +53,7 @@ void CustomModels::LoadDefaults() {
 }
 
 GlobalNamespace::SaberTrailRenderer* CustomModels::GetTrailRenderer() {
-    return UnityEngine::Object::Instantiate(trailRendererPrefab, UnityEngine::Vector3::get_zero(), UnityEngine::Quaternion::get_identity());
+    return CustomModels::Instantiate(trailRendererPrefab);
 }
 
 UnityEngine::Material* CustomModels::GetDefaultTrailMaterial() {
@@ -60,7 +61,7 @@ UnityEngine::Material* CustomModels::GetDefaultTrailMaterial() {
 }
 
 UnityEngine::GameObject* CustomModels::GetDefaultSaber() {
-    auto saber = UnityEngine::Object::Instantiate(defaultSaberPrefab, UnityEngine::Vector3::get_zero(), UnityEngine::Quaternion::get_identity());
+    auto saber = CustomModels::Instantiate(defaultSaberPrefab);
     for (auto component : saber->GetComponentsInChildren<GlobalNamespace::SetSaberGlowColor*>(true))
         component->enabled = false;
     for (auto component : saber->GetComponentsInChildren<GlobalNamespace::SetSaberFakeGlowColor*>(true))
@@ -70,7 +71,7 @@ UnityEngine::GameObject* CustomModels::GetDefaultSaber() {
 }
 
 static void InstantiateNote(UnityEngine::Transform* parent, std::string name, bool dot) {
-    auto note = UnityEngine::Object::Instantiate(defaultNotePrefab, parent);
+    auto note = CustomModels::Instantiate(defaultNotePrefab, parent);
     note->name = name;
     auto visuals = note->GetComponent<GlobalNamespace::ColorNoteVisuals*>();
     visuals->showArrow = !dot;
@@ -78,12 +79,12 @@ static void InstantiateNote(UnityEngine::Transform* parent, std::string name, bo
 }
 
 static void InstantiateChain(UnityEngine::Transform* parent, std::string name, bool link) {
-    auto chain = UnityEngine::Object::Instantiate(link ? defaultChainLinkPrefab : defaultChainHeadPrefab, parent);
+    auto chain = CustomModels::Instantiate(link ? defaultChainLinkPrefab : defaultChainHeadPrefab, parent);
     chain->name = name;
 }
 
 UnityEngine::GameObject* CustomModels::GetDefaultBomb() {
-    auto bomb = UnityEngine::Object::Instantiate(defaultBombPrefab);
+    auto bomb = CustomModels::Instantiate(defaultBombPrefab);
     bomb->name = "Bomb";
     return bomb;
 }
@@ -111,5 +112,5 @@ UnityEngine::GameObject* CustomModels::GetDefaultNotes() {
 }
 
 UnityEngine::GameObject* CustomModels::GetDefaultWall() {
-    return UnityEngine::Object::Instantiate(defaultWallPrefab, UnityEngine::Vector3::get_zero(), UnityEngine::Quaternion::get_identity());
+    return CustomModels::Instantiate(defaultWallPrefab);
 }

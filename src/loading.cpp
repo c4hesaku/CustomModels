@@ -6,6 +6,7 @@
 #include "bsml/shared/BSML/MainThreadScheduler.hpp"
 #include "main.hpp"
 #include "metacore/shared/operators.hpp"
+#include "utils.hpp"
 #include "zip.hpp"
 
 UnityEngine::GameObject* CustomModels::Asset::GetChild(std::string const& name) {
@@ -18,14 +19,14 @@ UnityEngine::GameObject* CustomModels::Asset::GetChild(std::string const& name) 
 
 UnityEngine::GameObject* CustomModels::Asset::InstantiateChild(std::string const& name) {
     if (auto child = GetChild(name))
-        return UnityEngine::Object::Instantiate(child);
+        return CustomModels::Instantiate(child);
     return nullptr;
 }
 
 UnityEngine::GameObject* CustomModels::Asset::Instantiate() {
     if (!asset)
         return nullptr;
-    return UnityEngine::Object::Instantiate(asset);
+    return CustomModels::Instantiate(asset);
 }
 
 struct BundleReference {

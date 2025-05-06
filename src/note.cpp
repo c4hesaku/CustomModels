@@ -137,7 +137,7 @@ static void CreateChain(UnityEngine::Transform* parent, UnityEngine::Transform* 
         logger.error("base note for chain {} not found", name);
         return;
     }
-    auto note = UnityEngine::Object::Instantiate(base, parent);
+    auto note = CustomModels::Instantiate(base, parent);
     note->name = name;
     note->localPosition = {0, (float) (link || debris ? 0 : 0.125), 0};
     note->localScale = {1, (float) (link ? 0.2 : 0.75), 1};
@@ -211,7 +211,7 @@ static void DuplicateForMirror(UnityEngine::Transform* prefab, std::string const
         return;
     }
 
-    auto mirror = UnityEngine::Object::Instantiate(base, prefab);
+    auto mirror = CustomModels::Instantiate(base, prefab);
     mirror->name = targetName;
 
     SetAllMirrorableProperties(base, false);
