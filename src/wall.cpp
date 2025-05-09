@@ -113,7 +113,7 @@ void CustomModels::InitWall(UnityEngine::GameObject* prefab, bool mirror) {
             SetMesh(core, nullptr);
     }
 
-    prefab->AddComponent<ColorVisuals*>()->SetColor(colorScheme->_obstaclesColor, UnityEngine::Color::get_black());
+    prefab->AddComponent<ColorVisuals*>()->SetColor(ColorScheme()->_obstaclesColor, UnityEngine::Color::get_black());
 }
 
 UnityEngine::Transform* CustomModels::PreviewWalls(UnityEngine::Vector3 position, UnityEngine::Quaternion rotation) {

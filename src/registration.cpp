@@ -2,6 +2,7 @@
 
 #include "GlobalNamespace/ColorManager.hpp"
 #include "Zenject/ConcreteIdBinderGeneric_1.hpp"
+#include "colors.hpp"
 #include "config.hpp"
 #include "json.hpp"
 #include "lapiz/shared/sabers/SaberModelRegistration.hpp"
@@ -16,6 +17,13 @@ DEFINE_TYPE(CustomModels, CustomSaberAPI);
 
 bool CustomModels::CustomSaberAPI::InitOverride(UnityEngine::Transform* parent, GlobalNamespace::Saber* saber) {
     logger.debug("ingame saber init");
+
+    if (transform->GetChildCount() > 0) {
+        logger.debug("already have a child! will update colors but not create saber");
+        for (auto& colors : GetComponentsInChildren<ColorVisuals*>())
+            colors->SetSidedColor(saber->saberType == GlobalNamespace::SaberType::SaberA);
+        return false;
+    }
 
     transform->SetParent(parent, false);
     InitSaber(transform, false, saber->saberType);

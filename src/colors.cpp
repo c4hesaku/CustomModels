@@ -7,6 +7,7 @@
 #include "main.hpp"
 #include "material.hpp"
 #include "metacore/shared/game.hpp"
+#include "metacore/shared/internals.hpp"
 #include "metacore/shared/operators.hpp"
 
 DEFINE_TYPE(CustomModels, ColorVisuals);
@@ -84,8 +85,9 @@ void CustomModels::ColorVisuals::SetColor(UnityEngine::Color color, UnityEngine:
 }
 
 void CustomModels::ColorVisuals::SetSidedColor(bool left) {
-    auto color = left ? colorScheme->_saberAColor : colorScheme->_saberBColor;
-    auto otherColor = left ? colorScheme->_saberBColor : colorScheme->_saberAColor;
+    auto scheme = ColorScheme();
+    auto color = left ? scheme->_saberAColor : scheme->_saberBColor;
+    auto otherColor = left ? scheme->_saberBColor : scheme->_saberAColor;
 
     SetColor(color, otherColor);
 }
@@ -99,11 +101,25 @@ void CustomModels::ColorVisuals::SetMenuColor(bool left) {
 
 GlobalNamespace::ColorScheme* CustomModels::colorScheme = nullptr;
 
+static inline GlobalNamespace::ColorScheme* SharedColors() {
+    if (MetaCore::Internals::stateValid)
+        return MetaCore::Internals::colors();
+    return nullptr;
+}
+
+GlobalNamespace::ColorScheme* CustomModels::ColorScheme() {
+    if (auto scheme = SharedColors())
+        return scheme;
+    return colorScheme;
+}
+
 static UnityEngine::Color const DefaultLeftColor = {0.78, 0.078, 0.078, 1};
 static UnityEngine::Color const DefaultRightColor = {0.16, 0.56, 0.82, 1};
 static UnityEngine::Color const DefaultWallColor = {0.78, 0.078, 0.078, 1};
 
 static inline GlobalNamespace::ColorScheme* GetMenuColors() {
+    if (auto scheme = SharedColors())
+        return scheme;
     return MetaCore::Game::GetPlayerData()->_playerData->colorSchemesSettings->GetOverrideColorScheme();
 }
 

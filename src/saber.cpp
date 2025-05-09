@@ -202,8 +202,8 @@ static void InitTrail(UnityEngine::GameObject* saber, bool menu, CustomModels::T
 
     CustomModels::SetLayerRecursively(component->transform, 12);
 
-    auto leftColor = menu ? CustomModels::MenuLeftColor() : CustomModels::colorScheme->_saberAColor;
-    auto rightColor = menu ? CustomModels::MenuRightColor() : CustomModels::colorScheme->_saberBColor;
+    auto leftColor = menu ? CustomModels::MenuLeftColor() : CustomModels::ColorScheme()->_saberAColor;
+    auto rightColor = menu ? CustomModels::MenuRightColor() : CustomModels::ColorScheme()->_saberBColor;
 
     component->_color = TrailColor(trail.info, leftColor, rightColor);
     component->_trailDuration = settings.Length() * trail.info.length / (float) 30;

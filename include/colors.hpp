@@ -27,6 +27,8 @@ DECLARE_CLASS_CODEGEN(CustomModels, ColorVisuals, UnityEngine::MonoBehaviour) {
 namespace CustomModels {
     extern GlobalNamespace::ColorScheme* colorScheme;
 
+    GlobalNamespace::ColorScheme* ColorScheme();
+
     UnityEngine::Color MenuLeftColor();
     UnityEngine::Color MenuRightColor();
     UnityEngine::Color MenuWallColor();
