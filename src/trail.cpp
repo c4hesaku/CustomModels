@@ -5,6 +5,8 @@
 #include "GlobalNamespace/TimeHelper.hpp"
 #include "UnityEngine/MeshFilter.hpp"
 #include "UnityEngine/MeshRenderer.hpp"
+#include "UnityEngine/Texture.hpp"
+#include "UnityEngine/TextureWrapMode.hpp"
 #include "UnityEngine/Vector2.hpp"
 #include "defaults.hpp"
 #include "main.hpp"
@@ -29,6 +31,8 @@ void CustomModels::CustomSaberTrail::Init(UnityEngine::Material* material) {
     _granularity = 45;
 
     if (material) {
+        // some trails have bad looking wrapping at the end due to imprecision and mip maps and stuff
+        material->mainTexture->wrapMode = UnityEngine::TextureWrapMode::Clamp;
         _trailRenderer->_meshRenderer->material = material;
         _trailRenderer->_meshRenderer->material->color = _color;
     }
