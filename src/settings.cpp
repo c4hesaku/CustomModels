@@ -447,6 +447,8 @@ void ModSettings::nameModalClosed(StringW value) {
 void PreviewSettings::DidActivate(bool firstActivation, bool, bool) {
     if (firstActivation)
         BSML_FILE(preview);
+    else
+        Refresh(true);
 }
 
 void PreviewSettings::DidDeactivate(bool, bool) {
