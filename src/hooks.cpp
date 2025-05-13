@@ -136,10 +136,7 @@ MAKE_AUTO_HOOK_MATCH(
 // get color manager
 MAKE_AUTO_HOOK_MATCH(
     GameplayCoreSceneSetupData_ctor,
-    static_cast<
-        void (GameplayCoreSceneSetupData::*)(ByRef<GlobalNamespace::BeatmapKey>, GlobalNamespace::BeatmapLevel*, GlobalNamespace::GameplayModifiers* gameplayModifiers, GlobalNamespace::PlayerSpecificSettings*, GlobalNamespace::PracticeSettings*, bool, GlobalNamespace::EnvironmentInfoSO*, GlobalNamespace::EnvironmentInfoSO*, GlobalNamespace::ColorScheme*, GlobalNamespace::SettingsManager*, GlobalNamespace::AudioClipAsyncLoader*, GlobalNamespace::BeatmapDataLoader*, GlobalNamespace::BeatmapLevelsEntitlementModel*, bool, bool, GlobalNamespace::EnvironmentsListModel*, System::Nullable_1<GlobalNamespace::RecordingToolManager::SetupData>)>(
-        &GameplayCoreSceneSetupData::_ctor
-    ),
+    &GameplayCoreSceneSetupData::_ctor,
     void,
     GameplayCoreSceneSetupData* self,
     ByRef<GlobalNamespace::BeatmapKey> p0,

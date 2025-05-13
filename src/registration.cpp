@@ -20,7 +20,7 @@ bool CustomModels::CustomSaberAPI::InitOverride(UnityEngine::Transform* parent, 
 
     if (transform->GetChildCount() > 0) {
         logger.debug("already have a child! will update colors but not create saber");
-        for (auto& colors : GetComponentsInChildren<ColorVisuals*>())
+        for (auto colors : GetComponentsInChildren<ColorVisuals*>())
             colors->SetSidedColor(saber->saberType == GlobalNamespace::SaberType::SaberA);
         return false;
     }

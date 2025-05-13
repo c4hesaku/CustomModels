@@ -73,6 +73,7 @@ UnityEngine::GameObject* CustomModels::GetDefaultSaber() {
 static void InstantiateNote(UnityEngine::Transform* parent, std::string name, bool dot) {
     auto note = CustomModels::Instantiate(defaultNotePrefab, parent);
     note->name = name;
+    note->transform->localEulerAngles = {90, 0, 0};
     auto visuals = note->GetComponent<GlobalNamespace::ColorNoteVisuals*>();
     visuals->showArrow = !dot;
     visuals->showCircle = dot;
@@ -81,6 +82,7 @@ static void InstantiateNote(UnityEngine::Transform* parent, std::string name, bo
 static void InstantiateChain(UnityEngine::Transform* parent, std::string name, bool link) {
     auto chain = CustomModels::Instantiate(link ? defaultChainLinkPrefab : defaultChainHeadPrefab, parent);
     chain->name = name;
+    chain->transform->localEulerAngles = {90, 0, 0};
 }
 
 UnityEngine::GameObject* CustomModels::GetDefaultBomb() {
@@ -106,7 +108,9 @@ UnityEngine::GameObject* CustomModels::GetDefaultNotes() {
     InstantiateChain(chains, "LeftLink", true);
     InstantiateChain(chains, "RightLink", true);
 
-    GetDefaultBomb()->transform->SetParent(parent->transform, false);
+    auto bomb = GetDefaultBomb()->transform;
+    bomb->SetParent(parent->transform, false);
+    bomb->localEulerAngles = {90, 0, 0};
 
     return parent;
 }

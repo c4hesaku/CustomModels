@@ -17,8 +17,12 @@ void CustomModels::ColorVisuals::FetchMaterials() {
         return;
     initialized = true;
 
+    logger.debug("initialize colorable materials");
+
     std::vector<UnityEngine::Material*> materialsVector = {};
     std::vector<UnityW<UnityEngine::Renderer>> renderersVector = {};
+
+    propertyController = GetComponentInParent<GlobalNamespace::MaterialPropertyBlockController*>();
 
     for (auto renderer : GetComponentsInChildren<UnityEngine::Renderer*>(true)) {
         bool addedRenderer = false;
@@ -35,10 +39,15 @@ void CustomModels::ColorVisuals::FetchMaterials() {
     }
     materials = ArrayW<UnityEngine::Material*>(materialsVector);
 
-    propertyController = GetComponentInParent<GlobalNamespace::MaterialPropertyBlockController*>();
-
     glows = GetComponentsInChildren<GlobalNamespace::SetSaberGlowColor*>();
     fakeGlows = GetComponentsInChildren<GlobalNamespace::SetSaberFakeGlowColor*>();
+
+    logger.debug(
+        "found {} materials, {} default glows, and {} property controller",
+        materials.size(),
+        glows.size() + fakeGlows.size(),
+        propertyController ? "a" : "no"
+    );
 
     if (!propertyController)
         return;
@@ -50,7 +59,7 @@ void CustomModels::ColorVisuals::FetchMaterials() {
 static void SetGlowColor(GlobalNamespace::SetSaberGlowColor* glow, UnityEngine::Color color) {
     auto propertyBlock = glow->_materialPropertyBlock;
     if (!propertyBlock)
-        propertyBlock = UnityEngine::MaterialPropertyBlock::New_ctor();
+        glow->_materialPropertyBlock = propertyBlock = UnityEngine::MaterialPropertyBlock::New_ctor();
 
     for (auto& pair : glow->_propertyTintColorPairs)
         propertyBlock->SetColor(pair->property, color * pair->tintColor);
