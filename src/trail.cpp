@@ -20,7 +20,9 @@ static constexpr float StaticTrailLength = 2;
 static ConstArray<UnityEngine::Vector3, 4> vertices;
 static ConstArray<UnityEngine::Color, 4> colors;
 static ConstArray triangles = {0, 3, 1, 0, 2, 3};
-static ConstArray uvs = {UnityEngine::Vector2(1, 0), UnityEngine::Vector2(0, 0), UnityEngine::Vector2(1, 1), UnityEngine::Vector2(0, 1)};
+static ConstArray uvs = {
+    UnityEngine::Vector2(1, 0), UnityEngine::Vector2(0, 0), UnityEngine::Vector2(1, 0.98), UnityEngine::Vector2(0, 0.98)
+};
 
 void CustomModels::CustomSaberTrail::Init(UnityEngine::Material* material) {
     logger.info("custom trail init");
@@ -31,10 +33,6 @@ void CustomModels::CustomSaberTrail::Init(UnityEngine::Material* material) {
     _granularity = 45;
 
     if (material) {
-        // some trails have bad looking wrapping at the end due to imprecision and mip maps and stuff
-        logger.debug("material shader name: {}", material->shader->name);
-        if (auto texture = material->mainTexture)
-            texture->wrapMode = UnityEngine::TextureWrapMode::Clamp;
         _trailRenderer->_meshRenderer->material = material;
         _trailRenderer->_meshRenderer->material->color = _color;
     }

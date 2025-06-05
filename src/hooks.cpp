@@ -4,6 +4,7 @@
 #include "GlobalNamespace/GameplayCoreSceneSetupData.hpp"
 #include "GlobalNamespace/NoteDebrisSpawner.hpp"
 #include "GlobalNamespace/ObstacleMaterialSetter.hpp"
+#include "GlobalNamespace/SaberTrailRenderer.hpp"
 #include "Zenject/DiContainer.hpp"
 #include "colors.hpp"
 #include "config.hpp"
@@ -34,6 +35,26 @@ MAKE_AUTO_HOOK_MATCH(SaberTrail_LateUpdate, &SaberTrail::LateUpdate, void, Saber
             return;
     }
     SaberTrail_LateUpdate(self);
+}
+
+// slightly crop saber trail edges
+MAKE_AUTO_HOOK_MATCH(
+    SaberTrailRenderer_UpdateVertices,
+    &SaberTrailRenderer::UpdateVertices,
+    void,
+    SaberTrailRenderer* self,
+    TrailElementCollection* elements,
+    Color color
+) {
+    SaberTrailRenderer_UpdateVertices(self, elements, color);
+
+    for (int i = 0; i < self->_granularity * 3; i += 3) {
+        if (self->_uvs[i].y <= 0.98)
+            continue;
+        self->_uvs[i].y = 0.98;
+        self->_uvs[i + 1].y = 0.98;
+        self->_uvs[i + 2].y = 0.98;
+    }
 }
 
 static void Scale(UnityEngine::Component* object, float size) {

@@ -1,5 +1,6 @@
 #include "settings.hpp"
 
+#include "HMUI/ScrollView.hpp"
 #include "UnityEngine/UI/LayoutRebuilder.hpp"
 #include "assets.hpp"
 #include "bsml/shared/BSML-Lite.hpp"
@@ -47,11 +48,15 @@ static int NullCheck(std::vector<void*> objects) {
     return -1;
 }
 
+#ifdef HOT_RELOAD
 #define NULL_CHECK(...)                                     \
     if (int i = NullCheck({__VA_ARGS__}); i >= 0) {         \
         logger.debug("null required field at index {}", i); \
         return;                                             \
     }
+#else
+#define NULL_CHECK(...)
+#endif
 
 void SettingsCoordinator::DidActivate(bool firstActivation, bool, bool) {
     if (!firstActivation)
@@ -123,6 +128,7 @@ void SelectionSettings::PostParse() {
     SetupIcons(modelTypeSelector, SettingsCoordinator::GetInstance()->modelType);
     searchInput =
         BSML::Lite::CreateStringSetting(searchHorizontal, "Search", "", {0, 0}, {-15, -40, 0}, [this](StringW value) { searchInputTyped(value); });
+    modelList->tableView->_scrollView->_platformHelper = BSML::Helpers::GetIVRPlatformHelper();
     if (selectedModel >= 0)
         modelList->tableView->SelectCellWithIdx(selectedModel, false);
     else

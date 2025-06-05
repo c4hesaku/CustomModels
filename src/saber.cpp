@@ -185,12 +185,13 @@ CreateTrail(UnityEngine::GameObject* saber, CustomModels::Trail const& trail, Cu
     return component;
 }
 
-static UnityEngine::Color TrailColor(CustomModels::TrailInfo const& info, UnityEngine::Color const& leftColor, UnityEngine::Color const& rightColor) {
+static UnityEngine::Color
+TrailColor(CustomModels::TrailInfo const& info, UnityEngine::Color const& leftColor, UnityEngine::Color const& rightColor, bool other = false) {
     switch (info.colorType) {
         case 0:
-            return leftColor * info.multiplierColor;
+            return (other ? rightColor : leftColor) * info.multiplierColor;
         case 1:
-            return rightColor * info.multiplierColor;
+            return (other ? leftColor : rightColor) * info.multiplierColor;
         default:
             return info.trailColor * (UnityEngine::Color) info.multiplierColor;
     }
@@ -204,12 +205,16 @@ static void InitTrail(UnityEngine::GameObject* saber, bool menu, CustomModels::T
 
     auto leftColor = menu ? CustomModels::MenuLeftColor() : CustomModels::ColorScheme()->_saberAColor;
     auto rightColor = menu ? CustomModels::MenuRightColor() : CustomModels::ColorScheme()->_saberBColor;
+    auto color = TrailColor(trail.info, leftColor, rightColor);
 
-    component->_color = TrailColor(trail.info, leftColor, rightColor);
+    component->_color = color;
     component->_trailDuration = settings.Length() * trail.info.length / (float) 30;
     component->_whiteSectionMaxDuration = settings.whiteStep ? trail.info.whiteStep : 0;
 
     component->Init(trail.material);
+
+    auto otherColor = TrailColor(trail.info, leftColor, rightColor, true);
+    component->_trailRenderer->gameObject->AddComponent<CustomModels::ColorVisuals*>()->SetColor(color, otherColor);
 }
 
 static void ScaleSaber(UnityEngine::Transform* instance, bool menu) {
@@ -270,17 +275,20 @@ void CustomModels::InitSaber(UnityEngine::Transform* parent, bool menu, GlobalNa
     logger.info("custom trails init");
 
     if (auto info = GetTrailsInfo(menu)) {
-        for (auto& trail : type == GlobalNamespace::SaberType::SaberA ? info->leftTrails : info->rightTrails)
+        for (auto& trail : left ? info->leftTrails : info->rightTrails)
             InitTrail(instance, menu, trail);
     }
 }
 
-static void CreateTrails(UnityEngine::GameObject* saber, std::vector<CustomModels::Trail>& trails, CustomModels::TrailSettings& settings) {
+static void PreviewTrails(UnityEngine::GameObject* saber, std::vector<CustomModels::Trail>& trails, CustomModels::TrailSettings& settings) {
     for (auto& trail : trails) {
         auto component = CreateTrail(saber, trail, settings);
-        component->_color = TrailColor(trail.info, CustomModels::MenuLeftColor(), CustomModels::MenuRightColor());
+        auto color = TrailColor(trail.info, CustomModels::MenuLeftColor(), CustomModels::MenuRightColor());
+        auto otherColor = TrailColor(trail.info, CustomModels::MenuLeftColor(), CustomModels::MenuRightColor(), true);
+        component->_color = color;
         component->Init(trail.material);
         component->SetStatic(true);
+        component->_trailRenderer->gameObject->AddComponent<CustomModels::ColorVisuals*>()->SetColor(color, otherColor);
     }
 }
 
@@ -303,8 +311,8 @@ UnityEngine::Transform* CustomModels::PreviewSabers(UnityEngine::Vector3 positio
 
     if (auto info = GetTrailsInfo(menu)) {
         auto& settings = menu ? getConfig().MenuTrailSettings() : getConfig().TrailSettings();
-        CreateTrails(leftSaber, info->leftTrails, settings);
-        CreateTrails(rightSaber, info->rightTrails, settings);
+        PreviewTrails(leftSaber, info->leftTrails, settings);
+        PreviewTrails(rightSaber, info->rightTrails, settings);
     }
 
     preview->SetPositionAndRotation(position, rotation);
