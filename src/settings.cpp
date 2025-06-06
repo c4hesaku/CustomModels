@@ -13,6 +13,7 @@
 #include "main.hpp"
 #include "metacore/shared/ui.hpp"
 #include "note.hpp"
+#include "pointers.hpp"
 #include "saber.hpp"
 #include "selection.hpp"
 #include "utils.hpp"
@@ -59,6 +60,7 @@ static int NullCheck(std::vector<void*> objects) {
 #endif
 
 void SettingsCoordinator::DidActivate(bool firstActivation, bool, bool) {
+    DisableMenuPointers();
     if (!firstActivation)
         return;
     showBackButton = true;
@@ -68,6 +70,7 @@ void SettingsCoordinator::DidActivate(bool firstActivation, bool, bool) {
 
 void SettingsCoordinator::BackButtonWasPressed(HMUI::ViewController* topViewController) {
     _parentFlowCoordinator->DismissFlowCoordinator(this, HMUI::ViewController::AnimationDirection::Horizontal, nullptr, false);
+    EnableMenuPointers();
 }
 
 void SettingsCoordinator::OnDestroy() {
@@ -196,7 +199,11 @@ void SelectionSettings::menuPointerSelected(HMUI::SegmentedControl*, int idx) {
 
 void SelectionSettings::modelSelected(HMUI::TableView*, int idx) {
     selectedModel = idx;
-    models[idx]->Select([]() { PreviewSettings::GetInstance()->Refresh(true); });
+    models[idx]->Select([]() {
+        PreviewSettings::GetInstance()->Refresh(true);
+        if (SettingsCoordinator::GetInstance()->modelType == 0 && SettingsCoordinator::GetInstance()->menuPointer)
+            DestroyMenuPointers();
+    });
 }
 
 void ModSettings::DidActivate(bool firstActivation, bool, bool) {

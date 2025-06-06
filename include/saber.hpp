@@ -28,6 +28,7 @@ namespace CustomModels {
     };
 
     void InitSaber(UnityEngine::Transform* parent, bool menu, GlobalNamespace::SaberType type);
+    void UpdateSaberColor(UnityEngine::Transform* parent, bool menu, GlobalNamespace::SaberType type);
 
     UnityEngine::Transform* PreviewSabers(UnityEngine::Vector3 position, UnityEngine::Quaternion rotation, bool menu);
     void UpdateSabersPreview(UnityEngine::Transform* preview, bool menu);

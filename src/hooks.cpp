@@ -1,7 +1,9 @@
 #include "hooks.hpp"
 
+#include "GlobalNamespace/ColorsOverrideSettingsPanelController.hpp"
 #include "GlobalNamespace/ConditionalMaterialSwitcher.hpp"
 #include "GlobalNamespace/GameplayCoreSceneSetupData.hpp"
+#include "GlobalNamespace/MainFlowCoordinator.hpp"
 #include "GlobalNamespace/NoteDebrisSpawner.hpp"
 #include "GlobalNamespace/ObstacleMaterialSetter.hpp"
 #include "GlobalNamespace/SaberTrailRenderer.hpp"
@@ -10,6 +12,7 @@
 #include "config.hpp"
 #include "metacore/shared/operators.hpp"
 #include "note.hpp"
+#include "pointers.hpp"
 #include "registration.hpp"
 #include "trail.hpp"
 
@@ -160,26 +163,77 @@ MAKE_AUTO_HOOK_MATCH(
     &GameplayCoreSceneSetupData::_ctor,
     void,
     GameplayCoreSceneSetupData* self,
-    ByRef<GlobalNamespace::BeatmapKey> p0,
-    GlobalNamespace::BeatmapLevel* p1,
-    GlobalNamespace::GameplayModifiers* modifiers,
-    GlobalNamespace::PlayerSpecificSettings* p3,
-    GlobalNamespace::PracticeSettings* p4,
+    ByRef<BeatmapKey> p0,
+    BeatmapLevel* p1,
+    GameplayModifiers* modifiers,
+    PlayerSpecificSettings* p3,
+    PracticeSettings* p4,
     bool p5,
-    GlobalNamespace::EnvironmentInfoSO* p6,
-    GlobalNamespace::EnvironmentInfoSO* p7,
-    GlobalNamespace::ColorScheme* colorScheme,
-    GlobalNamespace::SettingsManager* p9,
-    GlobalNamespace::AudioClipAsyncLoader* p10,
-    GlobalNamespace::BeatmapDataLoader* p11,
-    GlobalNamespace::BeatmapLevelsEntitlementModel* p12,
+    EnvironmentInfoSO* p6,
+    EnvironmentInfoSO* p7,
+    ColorScheme* colorScheme,
+    SettingsManager* p9,
+    AudioClipAsyncLoader* p10,
+    BeatmapDataLoader* p11,
+    BeatmapLevelsEntitlementModel* p12,
     bool p13,
     bool p14,
-    GlobalNamespace::EnvironmentsListModel* p15,
-    System::Nullable_1<GlobalNamespace::RecordingToolManager::SetupData> p16
+    EnvironmentsListModel* p15,
+    System::Nullable_1<RecordingToolManager::SetupData> p16
 ) {
     GameplayCoreSceneSetupData_ctor(self, p0, p1, modifiers, p3, p4, p5, p6, p7, colorScheme, p9, p10, p11, p12, p13, p14, p15, p16);
 
     CustomModels::colorScheme = colorScheme;
     CustomModels::modifiers = modifiers;
+}
+
+// enable menu pointers
+MAKE_AUTO_HOOK_MATCH(
+    MainFlowCoordinator_DidActivate,
+    &MainFlowCoordinator::DidActivate,
+    void,
+    MainFlowCoordinator* self,
+    bool firstActivation,
+    bool addedToHierarchy,
+    bool screenSystemEnabling
+) {
+    MainFlowCoordinator_DidActivate(self, firstActivation, addedToHierarchy, screenSystemEnabling);
+
+    if (getConfig().Enabled.GetValue())
+        CustomModels::EnableMenuPointers();
+}
+
+// update menu pointer colors
+MAKE_AUTO_HOOK_MATCH(
+    ColorsOverrideSettingsPanelController_HandleOverrideColorsToggleValueChanged,
+    &ColorsOverrideSettingsPanelController::HandleOverrideColorsToggleValueChanged,
+    void,
+    ColorsOverrideSettingsPanelController* self,
+    bool isOn
+) {
+    ColorsOverrideSettingsPanelController_HandleOverrideColorsToggleValueChanged(self, isOn);
+    CustomModels::UpdateMenuPointersColor();
+}
+
+MAKE_AUTO_HOOK_MATCH(
+    ColorsOverrideSettingsPanelController_HandleEditColorSchemeControllerDidChangeColorScheme,
+    &ColorsOverrideSettingsPanelController::HandleEditColorSchemeControllerDidChangeColorScheme,
+    void,
+    ColorsOverrideSettingsPanelController* self,
+    ColorScheme* colorScheme
+) {
+    ColorsOverrideSettingsPanelController_HandleEditColorSchemeControllerDidChangeColorScheme(self, colorScheme);
+    CustomModels::UpdateMenuPointersColor();
+}
+
+MAKE_AUTO_HOOK_MATCH(
+    ColorsOverrideSettingsPanelController_HandleDropDownDidSelectCellWithIdx,
+    &ColorsOverrideSettingsPanelController::HandleDropDownDidSelectCellWithIdx,
+    void,
+    ColorsOverrideSettingsPanelController* self,
+    HMUI::DropdownWithTableView* dropDownWithTableView,
+    int idx
+) {
+    ColorsOverrideSettingsPanelController_HandleDropDownDidSelectCellWithIdx(self, dropDownWithTableView, idx);
+    CustomModels::UpdateMenuPointersColor();
 }
