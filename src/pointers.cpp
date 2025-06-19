@@ -1,5 +1,6 @@
 #include "pointers.hpp"
 
+#include "GlobalNamespace/VRController.hpp"
 #include "UnityEngine/Transform.hpp"
 #include "VRUIControls/VRPointer.hpp"
 #include "colors.hpp"
@@ -30,8 +31,8 @@ void CustomModels::EnableMenuPointers() {
     leftParent = UnityEngine::GameObject::New_ctor("CustomModelsLeftMenuPointer");
     rightParent = UnityEngine::GameObject::New_ctor("CustomModelsRightMenuPointer");
 
-    leftParent->transform->SetParent(left->transform, false);
-    rightParent->transform->SetParent(right->transform, false);
+    leftParent->transform->SetParent(left->_viewAnchorTransform, false);
+    rightParent->transform->SetParent(right->_viewAnchorTransform, false);
 
     InitSaber(leftParent->transform, true, GlobalNamespace::SaberType::SaberA);
     InitSaber(rightParent->transform, true, GlobalNamespace::SaberType::SaberB);

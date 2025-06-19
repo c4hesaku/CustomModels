@@ -210,21 +210,21 @@ static void InitTrail(UnityEngine::GameObject* saber, bool menu, CustomModels::T
 
 static void ScaleSaber(UnityEngine::Transform* instance, bool menu) {
     auto& settings = menu ? getConfig().MenuSaberSettings() : getConfig().SaberSettings();
-    auto scale = instance->localScale;
-    scale.x = settings.Width();
-    scale.y = settings.Width();
-    scale.z = settings.Length();
-    instance->localScale = scale;
+    instance->localScale = {settings.Width(), settings.Width(), settings.Length()};
 }
 
-static UnityEngine::GameObject* CreateSaber(UnityEngine::Transform* parent, bool menu, GlobalNamespace::SaberType type) {
+static UnityEngine::GameObject* CreateSaber(bool menu, GlobalNamespace::SaberType type) {
     auto selection = menu ? CustomModels::Selection::MenuSaber : CustomModels::Selection::Saber;
     CustomModels::Saber* saber = dynamic_cast<CustomModels::Saber*>(CustomModels::assets[selection]);
 
     auto name = type == GlobalNamespace::SaberType::SaberA ? "LeftSaber" : "RightSaber";
     auto instance = saber->asset.InstantiateChild(name);
-    if (!instance)
-        instance = CustomModels::GetDefaultSaber();
+    if (!instance) {
+        if (menu && !getConfig().MenuSaber())
+            instance = UnityEngine::GameObject::New_ctor();
+        else
+            instance = CustomModels::GetDefaultSaber();
+    }
     instance->name = name;
     return instance;
 }
@@ -234,6 +234,8 @@ static CustomModels::Saber* GetTrailsInfo(bool menu) {
     CustomModels::Selection selection;
     switch (trailMode) {
         case 0:
+            if (menu && !getConfig().MenuSaber())
+                return nullptr;
             selection = menu ? CustomModels::Selection::MenuSaber : CustomModels::Selection::Saber;
             break;
         case 1:
@@ -249,7 +251,7 @@ void CustomModels::InitSaber(UnityEngine::Transform* parent, bool menu, GlobalNa
     logger.info("custom saber init (menu: {})", menu);
     logger.debug("saber type: {}", (int) type);
 
-    auto instance = CreateSaber(parent, menu, type);
+    auto instance = CreateSaber(menu, type);
 
     auto transform = instance->transform;
     transform->SetParent(parent, false);
@@ -263,9 +265,8 @@ void CustomModels::InitSaber(UnityEngine::Transform* parent, bool menu, GlobalNa
     else
         colors->SetSidedColor(left);
 
-    logger.info("custom trails init");
-
     if (auto info = GetTrailsInfo(menu)) {
+        logger.info("custom trails init");
         for (auto& trail : left ? info->leftTrails : info->rightTrails)
             InitTrail(instance, menu, trail);
     }
@@ -309,8 +310,8 @@ UnityEngine::Transform* CustomModels::PreviewSabers(UnityEngine::Vector3 positio
 
     auto preview = UnityEngine::GameObject::New_ctor("CustomModelsPreview")->transform;
 
-    auto leftSaber = CreateSaber(preview, menu, GlobalNamespace::SaberType::SaberA);
-    auto rightSaber = CreateSaber(preview, menu, GlobalNamespace::SaberType::SaberB);
+    auto leftSaber = CreateSaber(menu, GlobalNamespace::SaberType::SaberA);
+    auto rightSaber = CreateSaber(menu, GlobalNamespace::SaberType::SaberB);
 
     leftSaber->AddComponent<ColorVisuals*>()->SetMenuColor(true);
     rightSaber->AddComponent<ColorVisuals*>()->SetMenuColor(false);
@@ -322,6 +323,7 @@ UnityEngine::Transform* CustomModels::PreviewSabers(UnityEngine::Vector3 positio
     rightSaber->transform->localPosition = {0.25, 0, 0};
 
     if (auto info = GetTrailsInfo(menu)) {
+        logger.info("preview trails init");
         auto& settings = menu ? getConfig().MenuTrailSettings() : getConfig().TrailSettings();
         PreviewTrails(leftSaber, info->leftTrails, settings);
         PreviewTrails(rightSaber, info->rightTrails, settings);

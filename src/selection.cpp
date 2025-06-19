@@ -69,6 +69,7 @@ void CustomModels::LoadSelections() {
 
 ICON_GETTER(CopyTrail, custom_trail);
 ICON_GETTER(NoTrail, no_trail);
+ICON_GETTER(NoSaber, no_saber);
 ICON_GETTER(DefaultSabers, default_sabers);
 ICON_GETTER(DefaultNotes, default_notes);
 ICON_GETTER(DefaultWalls, default_walls);
@@ -96,13 +97,6 @@ static int& GetTrailConfig() {
     return menu ? getConfig().MenuTrailMode() : getConfig().TrailMode();
 }
 
-static void UnloadCurrentTrail(bool none) {
-    bool menu = CustomModels::SettingsCoordinator::GetInstance()->menuPointer;
-    CustomModels::assets[menu ? CustomModels::Selection::MenuTrail : CustomModels::Selection::Trail]->SetDefault();
-    GetTrailConfig() = none ? 1 : 0;
-    getConfig().Save();
-}
-
 struct TrailModeListItem : CustomModels::ListItem {
     int mode;
     TrailModeListItem(int mode) : mode(mode) {}
@@ -113,11 +107,26 @@ struct TrailModeListItem : CustomModels::ListItem {
     void Select(std::function<void()> onLoaded) override {
         bool menu = CustomModels::SettingsCoordinator::GetInstance()->menuPointer;
         CustomModels::assets[menu ? CustomModels::Selection::MenuTrail : CustomModels::Selection::Trail]->SetDefault();
+        GetModelConfig() = "";
         GetTrailConfig() = mode;
         getConfig().Save();
         onLoaded();
     }
     bool Selected() override { return GetTrailConfig() == mode; }
+};
+
+struct NoMenuSaberListItem : CustomModels::ListItem {
+    UnityEngine::Sprite* Cover() override { return NoSaber(); }
+    std::string Name() override { return "No Menu Pointer"; }
+    std::string Author() override { return ""; }
+    void Select(std::function<void()> onLoaded) override {
+        CustomModels::assets[CustomModels::Selection::MenuSaber]->SetDefault();
+        getConfig().MenuSaberModel() = "";
+        getConfig().MenuSaber() = false;
+        getConfig().Save();
+        onLoaded();
+    }
+    bool Selected() override { return !getConfig().MenuSaber(); }
 };
 
 struct DefaultListItem : CustomModels::ListItem {
@@ -147,8 +156,13 @@ struct DefaultListItem : CustomModels::ListItem {
     std::string Author() override { return "Beat Games"; }
     void Select(std::function<void()> onLoaded) override {
         GetModelConfig() = "";
-        if (modelType == 0 && CustomModels::SettingsCoordinator::GetInstance()->trail)
-            GetTrailConfig() = 2;
+        if (modelType == 0) {
+            auto settings = CustomModels::SettingsCoordinator::GetInstance();
+            if (settings->trail)
+                GetTrailConfig() = 2;
+            else if (settings->menuPointer)
+                getConfig().MenuSaber() = true;
+        }
         getConfig().Save();
         auto selection = (CustomModels::Selection) CustomModels::SettingsCoordinator::ModelSelection();
         CustomModels::assets[selection]->SetDefault();
@@ -201,6 +215,8 @@ struct FileListItem : CustomModels::ListItem {
             getConfig().TrailMode() = 2;
         else if (selection == CustomModels::Selection::MenuTrail)
             getConfig().MenuTrailMode() = 2;
+        else if (selection == CustomModels::Selection::MenuSaber)
+            getConfig().MenuSaber() = true;
         GetModelConfig() = file;
         getConfig().Save();
         CustomModels::assets[selection]->Load(file, std::move(onLoaded));
@@ -219,18 +235,22 @@ bool CustomModels::ListItem::Matches(std::string const& search) {
 
 static std::vector<CustomModels::ListItem*> listItems;
 static int prevModelType;
-static int prevTrail;
+static bool prevMenu;
+static bool prevTrail;
 
 static std::vector<std::string> const Extensions = {".whacker", ".cyoob", ".box"};
 
-static void RefreshListItems(int modelType, bool trail) {
+static void RefreshListItems(int modelType, bool trail, bool menu) {
     for (auto item : listItems)
         delete item;
     listItems.clear();
 
-    if (modelType == 0 && trail) {
-        listItems.emplace_back(new TrailModeListItem(0));
-        listItems.emplace_back(new TrailModeListItem(1));
+    if (modelType == 0) {
+        if (trail) {
+            listItems.emplace_back(new TrailModeListItem(0));
+            listItems.emplace_back(new TrailModeListItem(1));
+        } else if (menu)
+            listItems.emplace_back(new NoMenuSaberListItem());
     }
     listItems.emplace_back(new DefaultListItem(modelType));
     auto unsorted = listItems.size();
@@ -264,9 +284,10 @@ std::pair<std::vector<CustomModels::ListItem*>, int> CustomModels::GetSelectionO
     auto instance = SettingsCoordinator::GetInstance();
     int modelType = instance->modelType;
     bool trail = instance->trail;
+    bool menu = instance->menuPointer;
 
-    if (forceRefresh || prevModelType != modelType || modelType == 0 && prevTrail != trail)
-        RefreshListItems(modelType, trail);
+    if (forceRefresh || prevModelType != modelType || modelType == 0 && (prevTrail != trail || prevMenu != menu))
+        RefreshListItems(modelType, trail, menu);
 
     int selected = -1;
 

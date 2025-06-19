@@ -53,10 +53,10 @@ namespace CustomModels {
         VALUE_DEFAULT(std::string, NoteModel, "");
         VALUE_DEFAULT(std::string, WallModel, "");
 
+        VALUE_DEFAULT(bool, MenuSaber, false);
         // copy, none, custom
         VALUE_DEFAULT(int, TrailMode, 0);
         VALUE_DEFAULT(int, MenuTrailMode, 0);
-        VALUE_DEFAULT(bool, Pointers, false);
 
         VALUE_DEFAULT(CustomModels::SaberSettings, SaberSettings, {});
         VALUE_DEFAULT(CustomModels::TrailSettings, TrailSettings, {});
@@ -89,9 +89,9 @@ DECLARE_CONFIG(Config) {
     PROFILE_GETTER(NoteModel);
     PROFILE_GETTER(WallModel);
 
+    PROFILE_GETTER(MenuSaber);
     PROFILE_GETTER(TrailMode);
     PROFILE_GETTER(MenuTrailMode);
-    PROFILE_GETTER(Pointers);
 
     PROFILE_GETTER(SaberSettings);
     PROFILE_GETTER(TrailSettings);
