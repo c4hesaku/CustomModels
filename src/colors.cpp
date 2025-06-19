@@ -112,7 +112,7 @@ GlobalNamespace::ColorScheme* CustomModels::colorScheme = nullptr;
 
 static inline GlobalNamespace::ColorScheme* SharedColors() {
     if (MetaCore::Internals::stateValid)
-        return MetaCore::Internals::colors();
+        return MetaCore::Internals::colors;
     return nullptr;
 }
 
