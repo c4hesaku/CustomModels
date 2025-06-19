@@ -194,6 +194,7 @@ void SelectionSettings::saberOrTrailSelected(HMUI::SegmentedControl*, int idx) {
 void SelectionSettings::menuPointerSelected(HMUI::SegmentedControl*, int idx) {
     SettingsCoordinator::GetInstance()->menuPointer = idx == 1;
     RefreshModelList(false);
+    ModSettings::GetInstance()->Refresh();
     PreviewSettings::GetInstance()->Refresh(true);
 }
 
@@ -273,7 +274,7 @@ void ModSettings::Refresh() {
 
     deleteProfileButton->interactable = profiles.size() > 1;
 
-    auto& saber = getConfig().SaberSettings();
+    auto& saber = SettingsCoordinator::GetInstance()->menuPointer ? getConfig().MenuSaberSettings() : getConfig().SaberSettings();
     saberLengthSlider->set_Value(saber.length);
     saberLengthSlider->set_interactable(saber.overrideLength);
     MetaCore::UI::InstantSetToggle(saberLengthToggle, saber.overrideLength);
@@ -281,7 +282,7 @@ void ModSettings::Refresh() {
     saberWidthSlider->set_interactable(saber.overrideWidth);
     MetaCore::UI::InstantSetToggle(saberWidthToggle, saber.overrideWidth);
 
-    auto& trail = getConfig().TrailSettings();
+    auto& trail = SettingsCoordinator::GetInstance()->menuPointer ? getConfig().MenuTrailSettings() : getConfig().TrailSettings();
     MetaCore::UI::InstantSetToggle(whiteTrailToggle, !trail.whiteStep);
     trailDurationSlider->set_Value(trail.length);
     trailDurationSlider->set_interactable(trail.overrideLength);
@@ -347,7 +348,8 @@ void ModSettings::deleteProfilePressed() {
 }
 
 void ModSettings::saberLengthChanged(float value) {
-    getConfig().SaberSettings().length = value;
+    auto& settings = SettingsCoordinator::GetInstance()->menuPointer ? getConfig().MenuSaberSettings() : getConfig().SaberSettings();
+    settings.length = value;
     getConfig().Save();
     PreviewSettings::GetInstance()->Refresh(false);
 }
@@ -355,13 +357,15 @@ void ModSettings::saberLengthChanged(float value) {
 void ModSettings::saberLengthToggled(bool value) {
     if (saberLengthSlider)
         saberLengthSlider->set_interactable(value);
-    getConfig().SaberSettings().overrideLength = value;
+    auto& settings = SettingsCoordinator::GetInstance()->menuPointer ? getConfig().MenuSaberSettings() : getConfig().SaberSettings();
+    settings.overrideLength = value;
     getConfig().Save();
     PreviewSettings::GetInstance()->Refresh(false);
 }
 
 void ModSettings::saberWidthChanged(float value) {
-    getConfig().SaberSettings().width = value;
+    auto& settings = SettingsCoordinator::GetInstance()->menuPointer ? getConfig().MenuSaberSettings() : getConfig().SaberSettings();
+    settings.width = value;
     getConfig().Save();
     PreviewSettings::GetInstance()->Refresh(false);
 }
@@ -369,19 +373,22 @@ void ModSettings::saberWidthChanged(float value) {
 void ModSettings::saberWidthToggled(bool value) {
     if (saberWidthSlider)
         saberWidthSlider->set_interactable(value);
-    getConfig().SaberSettings().overrideWidth = value;
+    auto& settings = SettingsCoordinator::GetInstance()->menuPointer ? getConfig().MenuSaberSettings() : getConfig().SaberSettings();
+    settings.overrideWidth = value;
     getConfig().Save();
     PreviewSettings::GetInstance()->Refresh(false);
 }
 
 void ModSettings::whiteTrailToggled(bool value) {
-    getConfig().TrailSettings().whiteStep = !value;
+    auto& settings = SettingsCoordinator::GetInstance()->menuPointer ? getConfig().MenuTrailSettings() : getConfig().TrailSettings();
+    settings.whiteStep = !value;
     getConfig().Save();
     PreviewSettings::GetInstance()->Refresh(false);
 }
 
 void ModSettings::trailDurationChanged(float value) {
-    getConfig().TrailSettings().length = value;
+    auto& settings = SettingsCoordinator::GetInstance()->menuPointer ? getConfig().MenuTrailSettings() : getConfig().TrailSettings();
+    settings.length = value;
     getConfig().Save();
     PreviewSettings::GetInstance()->Refresh(false);
 }
@@ -389,13 +396,15 @@ void ModSettings::trailDurationChanged(float value) {
 void ModSettings::trailDurationToggled(bool value) {
     if (trailDurationSlider)
         trailDurationSlider->set_interactable(value);
-    getConfig().TrailSettings().overrideLength = value;
+    auto& settings = SettingsCoordinator::GetInstance()->menuPointer ? getConfig().MenuTrailSettings() : getConfig().TrailSettings();
+    settings.overrideLength = value;
     getConfig().Save();
     PreviewSettings::GetInstance()->Refresh(false);
 }
 
 void ModSettings::trailWidthChanged(float value) {
-    getConfig().TrailSettings().width = value;
+    auto& settings = SettingsCoordinator::GetInstance()->menuPointer ? getConfig().MenuTrailSettings() : getConfig().TrailSettings();
+    settings.width = value;
     getConfig().Save();
     PreviewSettings::GetInstance()->Refresh(false);
 }
@@ -403,13 +412,15 @@ void ModSettings::trailWidthChanged(float value) {
 void ModSettings::trailWidthToggled(bool value) {
     if (trailWidthSlider)
         trailWidthSlider->set_interactable(value);
-    getConfig().TrailSettings().overrideWidth = value;
+    auto& settings = SettingsCoordinator::GetInstance()->menuPointer ? getConfig().MenuTrailSettings() : getConfig().TrailSettings();
+    settings.overrideWidth = value;
     getConfig().Save();
     PreviewSettings::GetInstance()->Refresh(false);
 }
 
 void ModSettings::trailOffsetChanged(float value) {
-    getConfig().TrailSettings().widthOffset = value;
+    auto& settings = SettingsCoordinator::GetInstance()->menuPointer ? getConfig().MenuTrailSettings() : getConfig().TrailSettings();
+    settings.widthOffset = value;
     getConfig().Save();
     PreviewSettings::GetInstance()->Refresh(false);
 }
