@@ -291,6 +291,7 @@ static void RefreshListItems(int modelType, bool trail, bool menu) {
 
     prevModelType = modelType;
     prevTrail = trail;
+    prevMenu = menu;
 }
 
 std::pair<std::vector<CustomModels::ListItem*>, int> CustomModels::GetSelectionOptions(std::string filter, bool forceRefresh) {
