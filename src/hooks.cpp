@@ -7,6 +7,7 @@
 #include "GlobalNamespace/NoteDebrisSpawner.hpp"
 #include "GlobalNamespace/ObstacleMaterialSetter.hpp"
 #include "GlobalNamespace/SaberTrailRenderer.hpp"
+#include "GlobalNamespace/UIKeyboardManager.hpp"
 #include "Zenject/DiContainer.hpp"
 #include "colors.hpp"
 #include "config.hpp"
@@ -236,4 +237,17 @@ MAKE_AUTO_HOOK_MATCH(
 ) {
     ColorsOverrideSettingsPanelController_HandleDropDownDidSelectCellWithIdx(self, dropDownWithTableView, idx);
     CustomModels::UpdateMenuPointersColor();
+}
+
+// fix profile rename keyboard being behind the blocker
+MAKE_AUTO_HOOK_MATCH(
+    UIKeyboardManager_OpenKeyboardFor, &UIKeyboardManager::OpenKeyboardFor, void, UIKeyboardManager* self, HMUI::InputFieldView* input
+) {
+    if (auto inputModal = input->GetComponentInParent<HMUI::ModalView*>()) {
+        auto inputModalCanvas = inputModal->GetComponent<UnityEngine::Canvas*>();
+        auto keyboardModalCanvas = self->_keyboardModalView->GetComponent<UnityEngine::Canvas*>();
+        keyboardModalCanvas->sortingOrder = inputModalCanvas->sortingOrder;
+    }
+
+    UIKeyboardManager_OpenKeyboardFor(self, input);
 }

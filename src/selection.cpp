@@ -13,23 +13,26 @@
 #include "zip.hpp"
 
 void CustomModels::AssetInfo::Load(std::string const& file, std::function<void()> onDone) {
-    if (file.empty()) {
-        SetDefault();
-        if (onDone)
-            onDone();
-        return;
+    if (!file.empty()) {
+        try {
+            if (!files.contains(file))
+                throw std::runtime_error("manifest not found");
+            if (!ParseInfo(file))
+                throw std::runtime_error("failed to parse info");
+            asset.Load(file, ObjectName(), [this, onDone](bool changed) {
+                if (changed)
+                    PostLoad();
+                if (onDone)
+                    onDone();
+            });
+            return;
+        } catch (std::exception const& e) {
+            logger.error("error loading file {}: {}", file, e.what());
+        }
     }
-    if (!files.contains(file)) {
-        logger.error("manifest not found for loading file {}", file);
-        return;
-    }
-    if (!ParseInfo(file))
-        return;
-    asset.Load(file, ObjectName(), [this, onDone]() {
-        PostLoad();
-        if (onDone)
-            onDone();
-    });
+    SetDefault();
+    if (onDone)
+        onDone();
 }
 
 static CustomModels::Saber SaberAsset;
@@ -48,13 +51,25 @@ std::map<CustomModels::Selection, CustomModels::AssetInfo*> CustomModels::assets
     {CustomModels::Selection::Wall, &WallAsset},
 };
 
-void CustomModels::LoadSelections() {
-    assets[Selection::Saber]->Load(getConfig().SaberModel(), nullptr);
-    assets[Selection::Trail]->Load(getConfig().TrailModel(), nullptr);
-    assets[Selection::MenuSaber]->Load(getConfig().MenuSaberModel(), nullptr);
-    assets[Selection::MenuTrail]->Load(getConfig().MenuTrailModel(), nullptr);
-    assets[Selection::Note]->Load(getConfig().NoteModel(), nullptr);
-    assets[Selection::Wall]->Load(getConfig().WallModel(), nullptr);
+void CustomModels::LoadSelections(std::function<void()> onDone) {
+    int* counter = nullptr;
+    std::function<void()> count = nullptr;
+    if (onDone) {
+        counter = new int(0);  // callbacks are all run on the main thread
+        count = [counter, onDone]() {
+            if (++(*counter) == 6) {
+                logger.debug("finished loading all selections");
+                delete counter;
+                onDone();
+            }
+        };
+    }
+    assets[Selection::Saber]->Load(getConfig().SaberModel(), count);
+    assets[Selection::Trail]->Load(getConfig().TrailModel(), count);
+    assets[Selection::MenuSaber]->Load(getConfig().MenuSaberModel(), count);
+    assets[Selection::MenuTrail]->Load(getConfig().MenuTrailModel(), count);
+    assets[Selection::Note]->Load(getConfig().NoteModel(), count);
+    assets[Selection::Wall]->Load(getConfig().WallModel(), count);
 }
 
 #define ICON_GETTER(name, asset)                                                                   \

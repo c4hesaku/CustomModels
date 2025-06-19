@@ -38,14 +38,16 @@ struct BundleReference {
 static std::map<std::string, BundleReference> bundles;
 
 // removes a reference from an asset, handling any necessary cleanup, returns true if the file is no longer in bundles
-static bool RemoveLoad(std::string const& file) {
+static bool RemoveLoad(std::string const& file, bool defer = false) {
     auto& bundle = bundles[file];
     if (--bundle.refs != 0)
         return false;
     logger.debug("unloading asset bundle {}", file);
     if (bundle.bundle)
         bundle.bundle->Unload(true);
-    bundles.erase(file);
+    bundle.bundle = nullptr;
+    if (!defer)
+        bundles.erase(file);
     return true;
 }
 
@@ -66,11 +68,12 @@ static void LoadBundle(std::string const& bytes, std::string file) {
         [request, file]() {
             auto& bundle = bundles[file];
             bundle.bundle = request->assetBundle;
-            if (RemoveLoad(file))
-                return;  // don't call callbacks if fully removed
+            bool remove = RemoveLoad(file, true);
             for (auto& callback : bundle.callbacks)
                 callback(bundle.bundle);
             bundle.callbacks.clear();
+            if (remove)
+                bundles.erase(file);
         }
     );
 }
@@ -89,33 +92,34 @@ static void AddLoad(std::string const& file, std::function<void(UnityEngine::Ass
 
     if (!present) {
         std::string bytes = CustomModels::ReadFileFromZip(file, CustomModels::files[file].androidFileName);
-        if (bytes.empty())
-            return;
-        LoadBundle(bytes, file);
+        if (!bytes.empty())
+            LoadBundle(bytes, file);
+        else
+            onDone(nullptr);
     }
 }
 
-void CustomModels::Asset::Load(std::string file, std::string assetName, std::function<void()> onDone) {
-    if (!files.contains(file) || file.empty())
-        return;
-    if (file == currentFile) {
-        onDone();
+void CustomModels::Asset::Load(std::string file, std::string assetName, std::function<void(bool)> onDone) {
+    if (!files.contains(file) || file.empty() || file == currentFile) {
+        onDone(false);
         return;
     }
 
     logger.info("getting asset {} for {}", assetName, file);
-    if (!loadingFile.empty())
-        RemoveLoad(loadingFile);
+    Unload();
     loadingFile = file;
 
     // nesting callbacks is definitely annoying, but a coroutine would be too
     AddLoad(file, [this, file, assetName, onDone](UnityEngine::AssetBundle* bundle) {
-        if (file != loadingFile)
+        if (file != loadingFile) {
+            onDone(false);
             return;
+        }
         if (!bundle) {
             RemoveLoad(file);
             logger.error("failed to load asset bundle for {}", file);
             loadingFile = "";
+            onDone(false);
             return;
         }
 
@@ -125,8 +129,10 @@ void CustomModels::Asset::Load(std::string file, std::string assetName, std::fun
         BSML::MainThreadScheduler::ScheduleUntil(
             [request]() { return request->isDone; },
             [this, bundle, request, assetName, file, onDone]() {
-                if (file != loadingFile)
+                if (file != loadingFile) {
+                    onDone(false);
                     return;
+                }
 
                 logger.debug("finished loading asset {} for {}", assetName, file);
                 currentFile = file;
@@ -139,7 +145,7 @@ void CustomModels::Asset::Load(std::string file, std::string assetName, std::fun
                 } else
                     logger.error("failed to load asset {} for {}", assetName, file);
 
-                onDone();
+                onDone(asset != nullptr);
             }
         );
     });

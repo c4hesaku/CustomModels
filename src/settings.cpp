@@ -315,10 +315,12 @@ void ModSettings::enableToggled(bool value) {
 }
 
 void ModSettings::profileSelected(StringW value) {
+    logger.debug("profile {} selected", value);
     getConfig().Profile.SetValue(value);
     Refresh();
+    DestroyMenuPointers();
     SelectionSettings::GetInstance()->RefreshModelList(false);
-    PreviewSettings::GetInstance()->Refresh(true);
+    LoadSelections([]() { PreviewSettings::GetInstance()->Refresh(true); });
 }
 
 void ModSettings::renameProfilePressed() {

@@ -26,7 +26,7 @@ namespace CustomModels {
 
     extern std::map<Selection, AssetInfo*> assets;
 
-    void LoadSelections();
+    void LoadSelections(std::function<void()> onDone = nullptr);
 
     struct ListItem {
         virtual UnityEngine::Sprite* Cover() = 0;
