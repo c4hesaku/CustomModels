@@ -35,10 +35,6 @@
     {
       "extension": "qwall",
       "destination": "/sdcard/ModData/com.beatgames.beatsaber/Mods/CustomModels/Legacy/"
-    },
-    {
-      "extension": "zip",
-      "destination": "/sdcard/ModData/com.beatgames.beatsaber/Mods/CustomModels/Zips/"
     }
   ]
 }
