@@ -9,17 +9,23 @@
 #include "metacore/shared/unity.hpp"
 #include "saber.hpp"
 
+static std::set<std::string> const PointerHandleObjects = {"Normal", "Glowing", "FakeGlow0", "FakeGlow1"};
+
 static bool hasMenuPointers = false;
 static UnityEngine::GameObject* leftParent;
 static UnityEngine::GameObject* rightParent;
 
-void CustomModels::EnableMenuPointers() {
-    if (hasMenuPointers) {
-        leftParent->active = true;
-        rightParent->active = true;
-        return;
+static void SetHandlesEnabled(bool value) {
+    for (auto& saber : {leftParent, rightParent}) {
+        auto anchor = saber->transform->parent;
+        for (auto& name : PointerHandleObjects) {
+            if (auto child = anchor->Find(name))
+                child->gameObject->active = value;
+        }
     }
+}
 
+static void CreateMenuPointers() {
     auto input = MetaCore::Input::GetCurrentInputModule();
     if (!input) {
         logger.error("failed to find input module for menu pointers");
@@ -34,8 +40,8 @@ void CustomModels::EnableMenuPointers() {
     leftParent->transform->SetParent(left->_viewAnchorTransform, false);
     rightParent->transform->SetParent(right->_viewAnchorTransform, false);
 
-    InitSaber(leftParent->transform, true, GlobalNamespace::SaberType::SaberA);
-    InitSaber(rightParent->transform, true, GlobalNamespace::SaberType::SaberB);
+    CustomModels::InitSaber(leftParent->transform, true, GlobalNamespace::SaberType::SaberA);
+    CustomModels::InitSaber(rightParent->transform, true, GlobalNamespace::SaberType::SaberB);
 
     hasMenuPointers = true;
 
@@ -45,10 +51,22 @@ void CustomModels::EnableMenuPointers() {
     logger.debug("created menu pointers");
 }
 
+void CustomModels::EnableMenuPointers() {
+    if (!hasMenuPointers)
+        CreateMenuPointers();
+    if (!hasMenuPointers)
+        return;
+
+    SetHandlesEnabled(false);
+    leftParent->active = true;
+    rightParent->active = true;
+}
+
 void CustomModels::DisableMenuPointers() {
     if (!hasMenuPointers)
         return;
 
+    SetHandlesEnabled(true);
     leftParent->active = false;
     rightParent->active = false;
 }
@@ -57,8 +75,12 @@ void CustomModels::DestroyMenuPointers() {
     if (!hasMenuPointers)
         return;
 
+    SetHandlesEnabled(true);
     UnityEngine::Object::DestroyImmediate(leftParent);
     UnityEngine::Object::DestroyImmediate(rightParent);
+
+    // OnDestroy isn't called if the object is inactive
+    hasMenuPointers = false;
 
     logger.debug("destroyed menu pointers");
 }
