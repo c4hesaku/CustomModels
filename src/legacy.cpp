@@ -1,4 +1,4 @@
-#include "conversion.hpp"
+#include "legacy.hpp"
 
 #include "UnityEngine/AssetBundle.hpp"
 #include "UnityEngine/ImageConversion.hpp"
@@ -250,4 +250,28 @@ void CustomModels::ConvertLegacyModels() {
 
     for (auto& file : remove)
         std::filesystem::remove(file);
+}
+
+static void CopyFolder(std::string const& source, std::string const& subfolder) {
+    if (!direxists(source))
+        return;
+
+    std::filesystem::path folder = getDataDir(MOD_ID);
+    auto dest = folder / subfolder;
+
+    logger.info("moving models from {} to {}", source, dest.string());
+
+    for (auto const& entry : std::filesystem::directory_iterator(source)) {
+        if (entry.is_directory())
+            continue;
+        std::error_code ignore;
+        std::filesystem::rename(entry, dest / entry.path().filename(), ignore);
+    }
+}
+
+void CustomModels::MoveQosmeticsFolders() {
+    std::filesystem::path qos = getDataDir("Qosmetics");
+    CopyFolder(qos / "Whackers", "Sabers");
+    CopyFolder(qos / "Cyoobs", "Notes");
+    CopyFolder(qos / "Boxes", "Walls");
 }

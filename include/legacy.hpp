@@ -2,4 +2,6 @@
 
 namespace CustomModels {
     void ConvertLegacyModels();
+
+    void MoveQosmeticsFolders();
 }

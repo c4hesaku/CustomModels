@@ -5,11 +5,11 @@
 #include "bsml/shared/BSML.hpp"
 #include "bsml/shared/BSMLDataCache.hpp"
 #include "config.hpp"
-#include "conversion.hpp"
 #include "custom-types/shared/register.hpp"
 #include "defaults.hpp"
 #include "hooks.hpp"
 #include "lapiz/shared/zenject/Zenjector.hpp"
+#include "legacy.hpp"
 #include "loading.hpp"
 #include "registration.hpp"
 #include "scotland2/shared/modloader.h"
@@ -42,6 +42,7 @@ extern "C" void late_load() {
     // 1. it only has to be done once per file, so I can do it with an invisible lag spike instead of async stuff
     // 2. it allows most of the later loading logic to be unified (and it's complicated enough that way)
     CustomModels::ConvertLegacyModels();
+    CustomModels::MoveQosmeticsFolders();
     CustomModels::LoadDefaults();
     CustomModels::LoadManifests();
     CustomModels::LoadSelections();
