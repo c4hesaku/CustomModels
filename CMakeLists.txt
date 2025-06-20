@@ -82,3 +82,10 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E rename stripped_lib${COMPILE_ID}.so lib${COMPILE_ID}.so
     COMMENT "Rename the stripped lib to regular"
 )
+
+add_custom_command(
+    TARGET ${COMPILE_ID}
+    POST_BUILD
+    COMMAND ${CMAKE_STRIP} -d --strip-all "../extern/libs/libzip.debug.so" -o "libzip.so"
+    COMMENT "Hack fix for libzip"
+)
