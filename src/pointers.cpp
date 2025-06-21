@@ -4,6 +4,7 @@
 #include "UnityEngine/Transform.hpp"
 #include "VRUIControls/VRPointer.hpp"
 #include "colors.hpp"
+#include "config.hpp"
 #include "main.hpp"
 #include "metacore/shared/input.hpp"
 #include "metacore/shared/unity.hpp"
@@ -57,7 +58,7 @@ void CustomModels::EnableMenuPointers() {
     if (!hasMenuPointers)
         return;
 
-    SetHandlesEnabled(false);
+    SetHandlesEnabled(!getConfig().MenuSaber());
     leftParent->active = true;
     rightParent->active = true;
 }
