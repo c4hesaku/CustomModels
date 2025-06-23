@@ -137,7 +137,9 @@ static void CreateChain(UnityEngine::Transform* parent, UnityEngine::Transform* 
         logger.error("base note for chain {} not found", name);
         return;
     }
-    auto note = CustomModels::Instantiate(base, parent);
+    auto unscaled = UnityEngine::GameObject::New_ctor(name)->transform;
+    unscaled->parent = parent;
+    auto note = CustomModels::Instantiate(base, unscaled);
     note->name = name;
     note->localPosition = {0, (float) (link || debris ? 0 : 0.125), 0};
     note->localScale = {1, (float) (link ? 0.2 : 0.75), 1};
@@ -157,7 +159,7 @@ static void CreateChains(UnityEngine::Transform* prefab, CustomModels::NoteInfo&
     // create chains from scaled/moved copies of non-chains
     for (int i = 0; i < NoteChildren.size(); i++) {
         auto base = NoteChildren[i];
-        auto part = NoteChildren[i];
+        auto part = ChainChildren[i];
         bool link = i >= 2;
         if (!chains->Find(part))
             CreateChain(chains, notes->Find(base), part, link, false);
@@ -347,8 +349,13 @@ static void ColorChildNotes(UnityEngine::Transform* parent, bool chain) {
     if (!parent)
         return;
     auto const& names = chain ? ChainChildren : NoteChildren;
-    for (int i = 0; i < names.size(); i++)
-        parent->Find(names[i])->gameObject->AddComponent<CustomModels::ColorVisuals*>()->SetMenuColor(i % 2 == 0);
+    for (int i = 0; i < names.size(); i++) {
+        auto child = parent->Find(names[i]);
+        if (child)
+            child->gameObject->AddComponent<CustomModels::ColorVisuals*>()->SetMenuColor(i % 2 == 0);
+        else
+            logger.warn("child {} not found", names[i]);
+    }
 }
 
 static void ColorDefaultNotes(UnityEngine::Transform* parent, UnityEngine::Color leftColor, UnityEngine::Color rightColor) {
