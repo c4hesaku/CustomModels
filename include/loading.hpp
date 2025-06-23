@@ -15,7 +15,7 @@ namespace CustomModels {
         UnityEngine::GameObject* InstantiateChild(std::string const& name);
         UnityEngine::GameObject* Instantiate();
 
-        void Load(std::string file, std::string assetName, std::function<void(bool)> onDone);
+        void Load(std::string file, std::string assetName, std::function<void(bool, bool)> onDone);
         void Unload();
     };
 

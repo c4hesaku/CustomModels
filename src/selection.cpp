@@ -19,8 +19,10 @@ void CustomModels::AssetInfo::Load(std::string const& file, std::function<void()
                 throw std::runtime_error("manifest not found");
             if (!ParseInfo(file))
                 throw std::runtime_error("failed to parse info");
-            asset.Load(file, ObjectName(), [this, onDone](bool changed) {
-                if (changed)
+            asset.Load(file, ObjectName(), [this, onDone](bool changed, bool error) {
+                if (error)
+                    SetDefault();
+                else if (changed)
                     PostLoad();
                 if (onDone)
                     onDone();
