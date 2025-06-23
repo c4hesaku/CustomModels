@@ -1,5 +1,6 @@
 #include "saber.hpp"
 
+#include "GlobalNamespace/LayerMasks.hpp"
 #include "UnityEngine/MeshRenderer.hpp"
 #include "UnityEngine/Renderer.hpp"
 #include "UnityEngine/TextAsset.hpp"
@@ -13,6 +14,8 @@
 #include "selection.hpp"
 #include "trail.hpp"
 #include "utils.hpp"
+
+int const CustomModels::SaberLayer = GlobalNamespace::LayerMasks::GetLayer("Saber");
 
 static inline void AddTrail(
     std::vector<CustomModels::Trail>& vec,
@@ -199,7 +202,7 @@ static void InitTrail(UnityEngine::GameObject* saber, bool menu, CustomModels::T
     auto& settings = menu ? getConfig().MenuTrailSettings() : getConfig().TrailSettings();
     auto component = CreateTrail(saber, trail, settings);
 
-    CustomModels::SetLayerRecursively(component->transform, 12);
+    CustomModels::SetLayerRecursively(component->transform, CustomModels::SaberLayer);
 
     component->_trailDuration = settings.Length() * trail.info.length / (float) 30;
     component->_whiteSectionMaxDuration = settings.whiteStep ? trail.info.whiteStep : 0;
@@ -255,7 +258,7 @@ void CustomModels::InitSaber(UnityEngine::Transform* parent, bool menu, GlobalNa
 
     auto transform = instance->transform;
     transform->SetParent(parent, false);
-    SetLayerRecursively(transform, 12);
+    SetLayerRecursively(transform, CustomModels::SaberLayer);
     ScaleSaber(transform, menu);
 
     bool left = type == GlobalNamespace::SaberType::SaberA;
@@ -309,6 +312,7 @@ UnityEngine::Transform* CustomModels::PreviewSabers(UnityEngine::Vector3 positio
     logger.debug("creating saber preview");
 
     auto preview = UnityEngine::GameObject::New_ctor("CustomModelsPreview")->transform;
+    SetLayerRecursively(preview, CustomModels::SaberLayer);
 
     auto leftSaber = CreateSaber(menu, GlobalNamespace::SaberType::SaberA);
     auto rightSaber = CreateSaber(menu, GlobalNamespace::SaberType::SaberB);

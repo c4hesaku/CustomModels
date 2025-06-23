@@ -6,23 +6,23 @@
 
 namespace CustomModels {
     namespace Material {
-        extern int CustomColors;
-        extern int Glow;
-        extern int Bloom;
-        extern int Color;
-        extern int OtherColor;
-        extern int Alpha;
-        extern int StencilRefID;
-        extern int StencilComp;
-        extern int StencilOp;
-        extern int BlendSrcFactor;
-        extern int BlendDstFactor;
-        extern int BlendSrcFactorA;
-        extern int BlendDstFactorA;
-        extern int SlicePos;
-        extern int CutPlane;
-        extern int TransformOffset;
-        extern int SizeParams;
+        extern int const CustomColors;
+        extern int const Glow;
+        extern int const Bloom;
+        extern int const Color;
+        extern int const OtherColor;
+        extern int const Alpha;
+        extern int const StencilRefID;
+        extern int const StencilComp;
+        extern int const StencilOp;
+        extern int const BlendSrcFactor;
+        extern int const BlendDstFactor;
+        extern int const BlendSrcFactorA;
+        extern int const BlendDstFactorA;
+        extern int const SlicePos;
+        extern int const CutPlane;
+        extern int const TransformOffset;
+        extern int const SizeParams;
     }
 
     bool ShouldColor(UnityEngine::Material* material);

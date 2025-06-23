@@ -27,6 +27,8 @@ namespace CustomModels {
         void PostLoad() override;
     };
 
+    extern int const SaberLayer;
+
     void InitSaber(UnityEngine::Transform* parent, bool menu, GlobalNamespace::SaberType type);
     void UpdateSaberColor(UnityEngine::Transform* parent, bool menu, GlobalNamespace::SaberType type);
 

@@ -6,7 +6,7 @@
 #include "metacore/shared/strings.hpp"
 
 #define PROPERTY_ID(identifier) \
-    int CustomModels::Material::identifier = UnityEngine::Shader::PropertyToID("_" #identifier);
+    int const CustomModels::Material::identifier = UnityEngine::Shader::PropertyToID("_" #identifier);
 
 PROPERTY_ID(CustomColors);
 PROPERTY_ID(Glow);

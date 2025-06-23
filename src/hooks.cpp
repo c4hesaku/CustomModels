@@ -3,11 +3,13 @@
 #include "GlobalNamespace/ColorsOverrideSettingsPanelController.hpp"
 #include "GlobalNamespace/ConditionalMaterialSwitcher.hpp"
 #include "GlobalNamespace/GameplayCoreSceneSetupData.hpp"
+#include "GlobalNamespace/LayerMasks.hpp"
 #include "GlobalNamespace/MainFlowCoordinator.hpp"
 #include "GlobalNamespace/NoteDebrisSpawner.hpp"
 #include "GlobalNamespace/ObstacleMaterialSetter.hpp"
 #include "GlobalNamespace/SaberTrailRenderer.hpp"
 #include "GlobalNamespace/UIKeyboardManager.hpp"
+#include "VRUIControls/VRGraphicRaycaster.hpp"
 #include "Zenject/DiContainer.hpp"
 #include "colors.hpp"
 #include "config.hpp"
@@ -237,6 +239,21 @@ MAKE_AUTO_HOOK_MATCH(
 ) {
     ColorsOverrideSettingsPanelController_HandleDropDownDidSelectCellWithIdx(self, dropDownWithTableView, idx);
     CustomModels::UpdateMenuPointersColor();
+}
+
+// fix menu pointers with colliders
+MAKE_AUTO_HOOK_MATCH(
+    VRGraphicRaycaster_Raycast,
+    &VRUIControls::VRGraphicRaycaster::Raycast,
+    void,
+    VRUIControls::VRGraphicRaycaster* self,
+    UnityEngine::EventSystems::PointerEventData* eventData,
+    System::Collections::Generic::List_1<UnityEngine::EventSystems::RaycastResult>* resultAppendList
+) {
+    auto mask = self->_blockingMask;
+    self->_blockingMask = mask.m_Mask & ~LayerMasks::getStaticF_saberLayerMask().m_Mask;
+    VRGraphicRaycaster_Raycast(self, eventData, resultAppendList);
+    self->_blockingMask = mask;
 }
 
 // fix profile rename keyboard being behind the blocker
