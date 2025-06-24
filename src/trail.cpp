@@ -16,7 +16,7 @@
 
 DEFINE_TYPE(CustomModels, CustomSaberTrail);
 
-static constexpr float StaticTrailLength = 2;
+static constexpr float StaticTrailLength = 3;
 
 static ConstArray<UnityEngine::Vector3, 4> vertices;
 static ConstArray<UnityEngine::Color, 4> colors;

@@ -130,7 +130,7 @@ static CustomModels::Trail GetDefaultTrail(int colorType) {
     info.colorType = colorType;
     info.trailColor = UnityEngine::Color::get_white();
     info.multiplierColor = UnityEngine::Color::get_white();
-    info.length = 12;
+    info.length = 18;
     info.whiteStep = 0.03;
 
     return {info, CustomModels::GetDefaultTrailMaterial(), UnityEngine::Vector3::get_forward(), UnityEngine::Vector3::get_zero()};
@@ -204,7 +204,7 @@ static void InitTrail(UnityEngine::GameObject* saber, bool menu, CustomModels::T
 
     CustomModels::SetLayerRecursively(component->transform, CustomModels::SaberLayer);
 
-    component->_trailDuration = settings.Length() * trail.info.length / (float) 30;
+    component->_trailDuration = settings.Length() * trail.info.length / (float) 45;
     component->_whiteSectionMaxDuration = settings.whiteStep ? trail.info.whiteStep : 0;
     UpdateTrailColor(component, menu, trail);
 
@@ -347,7 +347,7 @@ static void UpdateTrailPreview(UnityEngine::Transform* parent, CustomModels::Tra
 
     auto component = parent->GetComponent<CustomModels::CustomSaberTrail*>();
 
-    component->_trailDuration = settings.Length() * trail.info.length / (float) 30;
+    component->_trailDuration = settings.Length() * trail.info.length / (float) 45;
     component->_whiteSectionMaxDuration = settings.whiteStep ? trail.info.whiteStep : 0;
     component->RefreshTrail();
 }
