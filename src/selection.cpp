@@ -92,8 +92,8 @@ ICON_GETTER(DefaultNotes, default_notes);
 ICON_GETTER(DefaultWalls, default_walls);
 ICON_GETTER(EmptyPreview, null_image);
 
-static std::string& GetModelConfig() {
-    switch ((CustomModels::Selection) CustomModels::SettingsCoordinator::ModelSelection()) {
+static std::string& GetModelConfig(int selection) {
+    switch ((CustomModels::Selection) selection) {
         case CustomModels::Selection::Saber:
             return getConfig().SaberModel();
         case CustomModels::Selection::Trail:
@@ -107,6 +107,10 @@ static std::string& GetModelConfig() {
         default:
             return getConfig().WallModel();
     }
+}
+
+static std::string& GetCurrentModelConfig() {
+    return GetModelConfig(CustomModels::SettingsCoordinator::ModelSelection());
 }
 
 static int& GetTrailConfig() {
@@ -124,7 +128,7 @@ struct TrailModeListItem : CustomModels::ListItem {
     void Select(std::function<void()> onLoaded) override {
         bool menu = CustomModels::SettingsCoordinator::GetInstance()->menuPointer;
         CustomModels::assets[menu ? CustomModels::Selection::MenuTrail : CustomModels::Selection::Trail]->SetDefault();
-        GetModelConfig() = "";
+        GetCurrentModelConfig() = "";
         GetTrailConfig() = mode;
         getConfig().Save();
         onLoaded();
@@ -172,7 +176,7 @@ struct DefaultListItem : CustomModels::ListItem {
     }
     std::string Author() override { return "Beat Games"; }
     void Select(std::function<void()> onLoaded) override {
-        GetModelConfig() = "";
+        GetCurrentModelConfig() = "";
         if (modelType == 0) {
             auto settings = CustomModels::SettingsCoordinator::GetInstance();
             if (settings->trail)
@@ -185,7 +189,7 @@ struct DefaultListItem : CustomModels::ListItem {
         CustomModels::assets[selection]->SetDefault();
         onLoaded();
     }
-    bool Selected() override { return GetModelConfig().empty(); }
+    bool Selected() override { return GetCurrentModelConfig().empty(); }
 };
 
 static std::map<std::string, UnityEngine::Sprite*> fileCovers;
@@ -227,6 +231,7 @@ struct FileListItem : CustomModels::ListItem {
     std::string Name() override { return CustomModels::files[file].descriptor.objectName; }
     std::string Author() override { return CustomModels::files[file].descriptor.author; }
     void Select(std::function<void()> onLoaded) override {
+        logger.debug("select model {}", file);
         auto selection = (CustomModels::Selection) CustomModels::SettingsCoordinator::ModelSelection();
         if (selection == CustomModels::Selection::Trail)
             getConfig().TrailMode() = 2;
@@ -234,11 +239,28 @@ struct FileListItem : CustomModels::ListItem {
             getConfig().MenuTrailMode() = 2;
         else if (selection == CustomModels::Selection::MenuSaber)
             getConfig().MenuSaber() = true;
-        GetModelConfig() = file;
+        GetCurrentModelConfig() = file;
         getConfig().Save();
         CustomModels::assets[selection]->Load(file, std::move(onLoaded));
     }
-    bool Selected() override { return GetModelConfig() == file; }
+    bool Selected() override { return GetCurrentModelConfig() == file; }
+    void Delete() override {
+        logger.debug("delete model {}", file);
+        bool changed = false;
+        for (int i = 0; i <= (int) CustomModels::Selection::SelectionMax; i++) {
+            auto& model = GetModelConfig(i);
+            if (model == file) {
+                model = "";
+                changed = true;
+                CustomModels::assets[(CustomModels::Selection) i]->SetDefault();
+            }
+        }
+        if (changed)
+            getConfig().Save();
+        std::filesystem::remove(file);
+        CustomModels::LoadManifests();
+    }
+    bool Deletable() override { return true; }
 };
 
 bool CustomModels::ListItem::Matches(std::string const& search) {

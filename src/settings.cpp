@@ -1,10 +1,12 @@
 #include "settings.hpp"
 
+#include "GlobalNamespace/LevelCollectionViewController.hpp"
 #include "HMUI/ScrollView.hpp"
 #include "UnityEngine/UI/LayoutRebuilder.hpp"
 #include "assets.hpp"
 #include "bsml/shared/BSML-Lite.hpp"
 #include "bsml/shared/BSML.hpp"
+#include "bsml/shared/BSML/Components/CustomListTableData.hpp"
 #include "bsml/shared/BSML/MainThreadScheduler.hpp"
 #include "bsml/shared/Helpers/creation.hpp"
 #include "bsml/shared/Helpers/getters.hpp"
@@ -105,6 +107,67 @@ int SettingsCoordinator::ModelSelection() {
     }
 }
 
+float SelectionSettings::CellSize() {
+    return 8.5;
+}
+
+int SelectionSettings::NumberOfCells() {
+    return models.size();
+}
+
+static GlobalNamespace::LevelListTableCell* CreateTableCellPrefab() {
+    auto levelCollectionController = BSML::Helpers::GetDiContainer()->Resolve<GlobalNamespace::LevelCollectionViewController*>();
+    auto base = levelCollectionController->transform->Find("LevelsTableView/TableView/Viewport/Content/LevelListTableCell");
+    auto instance = UnityEngine::Object::Instantiate(base)->GetComponent<GlobalNamespace::LevelListTableCell*>();
+    instance->name = "CustomModelsTableCell";
+
+    UnityEngine::Object::DestroyImmediate(instance->_songBpmText->gameObject);
+    UnityEngine::Object::DestroyImmediate(instance->_songDurationText->gameObject);
+    UnityEngine::Object::DestroyImmediate(instance->_promoBadgeGo);
+    UnityEngine::Object::DestroyImmediate(instance->_updatedBadgeGo);
+    UnityEngine::Object::DestroyImmediate(instance->_favoritesBadgeImage->gameObject);
+    UnityEngine::Object::DestroyImmediate(instance->transform->Find("BpmIcon")->gameObject);
+
+    instance->_songNameText->rectTransform->anchorMax = {1.05, 0.5};
+    instance->_songAuthorText->rectTransform->anchorMax = {1.05, 0.5};
+
+    auto image = BSML::Lite::CreateClickableImage(instance, PNG_SPRITE(icons::delete), nullptr, {36, 0}, {5, 5});
+    image->defaultColor = {1, 1, 1, 1};
+    image->highlightColor = {1, 0.2, 0.2, 1};
+    // closest field available
+    instance->_favoritesBadgeImage = image;
+
+    return instance;
+}
+
+HMUI::TableCell* SelectionSettings::CellForIdx(HMUI::TableView*, int idx) {
+    if (!tableView)
+        return nullptr;
+
+    auto ret = tableView->DequeueReusableCellForIdentifier(reuseIdentifier);
+    if (!ret) {
+        if (!tableCellPrefab)
+            tableCellPrefab = CreateTableCellPrefab();
+        ret = UnityEngine::Object::Instantiate(tableCellPrefab);
+    }
+    ret->_reuseIdentifier = reuseIdentifier;
+    auto cell = (GlobalNamespace::LevelListTableCell*) ret.ptr();
+
+    auto content = models[idx];
+    cell->_songNameText->text = content->Name();
+    cell->_songAuthorText->text = content->Author();
+    cell->_coverImage->sprite = content->Cover();
+
+    auto image = (BSML::ClickableImage*) cell->_favoritesBadgeImage.ptr();
+    image->gameObject->active = content->Deletable();
+    image->onClick.clear();
+    image->onClick += [this, idx]() {
+        modelDeleted(idx);
+    };
+
+    return ret;
+}
+
 void SelectionSettings::DidActivate(bool firstActivation, bool, bool) {
     LoadManifests();
     if (firstActivation) {
@@ -119,10 +182,8 @@ void SelectionSettings::SetupFields() {
     modelTypeData->Add(HMUI::IconSegmentedControl::DataItem::New_ctor(PNG_SPRITE(icons::saber), "Sabers", true));
     modelTypeData->Add(HMUI::IconSegmentedControl::DataItem::New_ctor(PNG_SPRITE(icons::note), "Notes", true));
     modelTypeData->Add(HMUI::IconSegmentedControl::DataItem::New_ctor(PNG_SPRITE(icons::wall), "Walls", true));
-
+    reuseIdentifier = "CustomModelsTableView";
     search = "";
-    modelListData = ListW<BSML::CustomCellInfo*>::New();
-    RefreshModelList(true);
 }
 
 void SelectionSettings::PostParse() {
@@ -131,33 +192,27 @@ void SelectionSettings::PostParse() {
     SetupIcons(modelTypeSelector, SettingsCoordinator::GetInstance()->modelType);
     searchInput =
         BSML::Lite::CreateStringSetting(searchHorizontal, "Search", "", {0, 0}, {-15, -40, 0}, [this](StringW value) { searchInputTyped(value); });
-    modelList->tableView->_scrollView->_platformHelper = BSML::Helpers::GetIVRPlatformHelper();
-    if (selectedModel >= 0)
-        modelList->tableView->SelectCellWithIdx(selectedModel, false);
-    else
-        modelList->tableView->ClearSelection();
+
+    UnityEngine::Object::DestroyImmediate(modelList->GetComponent<BSML::CustomListTableData*>());
+    tableView = modelList->GetComponentInChildren<HMUI::TableView*>();
+    tableView->SetDataSource((HMUI::TableView::IDataSource*) this, false);
+    RefreshModelList(true);
 }
 
 void SelectionSettings::RefreshModelList(bool full) {
-    modelListData->Clear();
-
     auto pair = GetSelectionOptions(search, full);
     models = pair.first;
     selectedModel = pair.second;
 
-    for (auto model : models)
-        modelListData.push_back(BSML::CustomCellInfo::construct(model->Name(), model->Author(), model->Cover()));
-
-    if (!modelList || !modelList->tableView)
+    if (!tableView)
         return;
 
-    auto table = modelList->tableView;
-    table->ReloadData();  // make sure to do this before anything else that would call RefreshCells after changing the data!
+    tableView->ReloadData();  // make sure to do this before anything else that would call RefreshCells after changing the data!
     if (selectedModel >= 0)
-        table->SelectCellWithIdx(selectedModel, false);
+        tableView->SelectCellWithIdx(selectedModel, false);
     else
-        table->ClearSelection();
-    table->ScrollToCellWithIdx(std::max(selectedModel, 0), HMUI::TableView::ScrollPositionType::Center, false);
+        tableView->ClearSelection();
+    tableView->ScrollToCellWithIdx(std::max(selectedModel, 0), HMUI::TableView::ScrollPositionType::Center, false);
 }
 
 void SelectionSettings::OnDestroy() {
@@ -205,6 +260,14 @@ void SelectionSettings::modelSelected(HMUI::TableView*, int idx) {
         if (SettingsCoordinator::GetInstance()->modelType == 0 && SettingsCoordinator::GetInstance()->menuPointer)
             DestroyMenuPointers();
     });
+}
+
+void SelectionSettings::modelDeleted(int idx) {
+    models[idx]->Delete();
+    RefreshModelList(true);
+    PreviewSettings::GetInstance()->Refresh(true);
+    if (SettingsCoordinator::GetInstance()->modelType == 0 && SettingsCoordinator::GetInstance()->menuPointer)
+        DestroyMenuPointers();
 }
 
 void ModSettings::DidActivate(bool firstActivation, bool, bool) {

@@ -15,6 +15,6 @@
             <tab tags="menuPointer" tab-name="Ingame" />
             <tab tags="menuPointer" tab-name="Menu" />
         </horizontal>
-        <list id="modelList" content="modelListData" select-cell="modelSelected" show-scrollbar="true" />
+        <list id="modelList" select-cell="modelSelected" stick-scrolling="true" show-scrollbar="true" />
     </vertical>
 </bg>

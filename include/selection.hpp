@@ -11,6 +11,7 @@ namespace CustomModels {
         MenuTrail,
         Note,
         Wall,
+        SelectionMax = Wall,
     };
 
     struct AssetInfo {
@@ -34,6 +35,8 @@ namespace CustomModels {
         virtual std::string Author() = 0;
         virtual void Select(std::function<void()> onLoaded) = 0;
         virtual bool Selected() = 0;
+        virtual void Delete() {};
+        virtual bool Deletable() { return false; };
         virtual ~ListItem() = default;
 
         bool Matches(std::string const& search);

@@ -1,13 +1,13 @@
 #pragma once
 
+#include "GlobalNamespace/LevelListTableCell.hpp"
 #include "HMUI/FlowCoordinator.hpp"
 #include "HMUI/IconSegmentedControl.hpp"
-#include "HMUI/TextSegmentedControl.hpp"
 #include "HMUI/InputFieldView.hpp"
 #include "HMUI/ModalView.hpp"
+#include "HMUI/TextSegmentedControl.hpp"
 #include "HMUI/ViewController.hpp"
 #include "UnityEngine/Transform.hpp"
-#include "bsml/shared/BSML/Components/CustomListTableData.hpp"
 #include "bsml/shared/BSML/Components/Settings/DropdownListSetting.hpp"
 #include "bsml/shared/BSML/Components/Settings/SliderSetting.hpp"
 #include "bsml/shared/BSML/Components/Settings/ToggleSetting.hpp"
@@ -33,8 +33,12 @@ DECLARE_CLASS_CODEGEN(CustomModels, SettingsCoordinator, HMUI::FlowCoordinator) 
     static SettingsCoordinator* instance;
 };
 
-DECLARE_CLASS_CODEGEN(CustomModels, SelectionSettings, HMUI::ViewController) {
+DECLARE_CLASS_CODEGEN_INTERFACES(CustomModels, SelectionSettings, HMUI::ViewController, HMUI::TableView::IDataSource*) {
     DECLARE_DEFAULT_CTOR();
+
+    DECLARE_OVERRIDE_METHOD_MATCH(float, CellSize, &HMUI::TableView::IDataSource::CellSize);
+    DECLARE_OVERRIDE_METHOD_MATCH(int, NumberOfCells, &HMUI::TableView::IDataSource::NumberOfCells);
+    DECLARE_OVERRIDE_METHOD_MATCH(HMUI::TableCell*, CellForIdx, &HMUI::TableView::IDataSource::CellForIdx, HMUI::TableView*, int idx);
 
     DECLARE_OVERRIDE_METHOD_MATCH(void, DidActivate, &HMUI::ViewController::DidActivate, bool firstActivation, bool, bool);
     DECLARE_INSTANCE_METHOD(void, SetupFields);
@@ -45,20 +49,24 @@ DECLARE_CLASS_CODEGEN(CustomModels, SelectionSettings, HMUI::ViewController) {
     DECLARE_STATIC_METHOD(SelectionSettings*, GetInstance);
 
     DECLARE_INSTANCE_FIELD(ListW<HMUI::IconSegmentedControl::DataItem*>, modelTypeData);
-    DECLARE_INSTANCE_FIELD(ListW<BSML::CustomCellInfo*>, modelListData);
+
+    DECLARE_INSTANCE_FIELD(GlobalNamespace::LevelListTableCell*, tableCellPrefab);
+    DECLARE_INSTANCE_FIELD(StringW, reuseIdentifier);
+    DECLARE_INSTANCE_FIELD(HMUI::TableView*, tableView);
 
     DECLARE_INSTANCE_FIELD(UnityEngine::RectTransform*, layout);
     DECLARE_INSTANCE_FIELD(UnityEngine::Transform*, searchHorizontal);
     DECLARE_INSTANCE_FIELD(HMUI::IconSegmentedControl*, modelTypeSelector);
     DECLARE_INSTANCE_FIELD(HMUI::InputFieldView*, searchInput);
     DECLARE_INSTANCE_FIELD(UnityEngine::Transform*, sabersHorizontal);
-    DECLARE_INSTANCE_FIELD(BSML::CustomListTableData*, modelList);
+    DECLARE_INSTANCE_FIELD(UnityEngine::GameObject*, modelList);
 
     DECLARE_INSTANCE_METHOD(void, modelTypeSelected, HMUI::SegmentedControl*, int idx);
     DECLARE_INSTANCE_METHOD(void, searchInputTyped, StringW value);
     DECLARE_INSTANCE_METHOD(void, saberOrTrailSelected, HMUI::SegmentedControl*, int idx);
     DECLARE_INSTANCE_METHOD(void, menuPointerSelected, HMUI::SegmentedControl*, int idx);
     DECLARE_INSTANCE_METHOD(void, modelSelected, HMUI::TableView*, int idx);
+    DECLARE_INSTANCE_METHOD(void, modelDeleted, int idx);
 
     DECLARE_INSTANCE_FIELD(StringW, search);
     DECLARE_INSTANCE_FIELD(int, selectedModel);
