@@ -75,27 +75,27 @@ namespace CustomModels {
     };
 
     DECLARE_JSON_STRUCT(LegacySaberConfig) {
-        VALUE(bool, enableFakeGlow);
-        VALUE(bool, hasCustomTrails);
-        VECTOR(LegacyTrail, leftTrails);
-        VECTOR(LegacyTrail, rightTrails);
+        VALUE_DEFAULT(bool, enableFakeGlow, false);
+        VALUE_DEFAULT(bool, hasCustomTrails, false);
+        VECTOR_DEFAULT(LegacyTrail, leftTrails, {});
+        VECTOR_DEFAULT(LegacyTrail, rightTrails, {});
     };
 
     DECLARE_JSON_STRUCT(LegacyNoteConfig) {
-        VALUE(bool, disableBaseGameArrows);
-        VALUE(bool, hasBomb);
-        VALUE(bool, hasDebris);
+        VALUE_DEFAULT(bool, disableBaseGameArrows, true);
+        VALUE_DEFAULT(bool, hasBomb, false);
+        VALUE_DEFAULT(bool, hasDebris, false);
     };
 
     DECLARE_JSON_STRUCT(LegacyWallConfig) {
-        VALUE(bool, replaceCoreMaterial);
-        VALUE(bool, replaceCoreMesh);
-        VALUE(bool, disableFrame);
-        VALUE(bool, disableFakeGlow);
-        VALUE(bool, replaceFrameMaterial);
-        VALUE(bool, replaceFrameMesh);
-        VALUE(bool, scoreSubmissionDisabled);
-        VALUE(bool, moreThan1Core);
-        VALUE(bool, moreThan1Frame);
+        VALUE_DEFAULT(bool, replaceCoreMaterial, false);
+        VALUE_DEFAULT(bool, replaceCoreMesh, false);
+        VALUE_DEFAULT(bool, disableFrame, false);
+        VALUE_DEFAULT(bool, disableFakeGlow, false);
+        VALUE_DEFAULT(bool, replaceFrameMaterial, false);
+        VALUE_DEFAULT(bool, replaceFrameMesh, false);
+        VALUE_DEFAULT(bool, scoreSubmissionDisabled, false);
+        VALUE_DEFAULT(bool, moreThan1Core, false);
+        VALUE_DEFAULT(bool, moreThan1Frame, false);
     };
 }
