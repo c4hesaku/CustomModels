@@ -314,7 +314,7 @@ void CustomModels::InitNote(UnityEngine::GameObject* prefab, NoteType type, bool
     if (!note->asset.asset)
         return;  // default model
 
-    if (modifiers->ghostNotes || modifiers->disappearingArrows)
+    if (modifiers && (modifiers->ghostNotes || modifiers->disappearingArrows))
         return;  // don't replace these for integrity
 
     if (debris && getConfig().NotesSettings().defaultDebris || type == NoteType::Bomb && getConfig().NotesSettings().defaultBombs)

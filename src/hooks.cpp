@@ -8,6 +8,8 @@
 #include "GlobalNamespace/NoteDebrisSpawner.hpp"
 #include "GlobalNamespace/ObstacleMaterialSetter.hpp"
 #include "GlobalNamespace/SaberTrailRenderer.hpp"
+#include "GlobalNamespace/TutorialScenesTransitionSetupDataSO.hpp"
+#include "GlobalNamespace/TutorialSceneSetupData.hpp"
 #include "GlobalNamespace/UIKeyboardManager.hpp"
 #include "VRUIControls/VRGraphicRaycaster.hpp"
 #include "Zenject/DiContainer.hpp"
@@ -160,7 +162,7 @@ MAKE_AUTO_HOOK_MATCH(
         ObstacleMaterialSetter_SetCoreMaterial(self, renderer, obstacleQuality, screenDisplacementEffects);
 }
 
-// get color manager
+// get color scheme and modifiers
 MAKE_AUTO_HOOK_MATCH(
     GameplayCoreSceneSetupData_ctor,
     &GameplayCoreSceneSetupData::_ctor,
@@ -188,6 +190,21 @@ MAKE_AUTO_HOOK_MATCH(
 
     CustomModels::colorScheme = colorScheme;
     CustomModels::modifiers = modifiers;
+}
+
+// not sure why hooking TutorialSceneSetupData_ctor doesn't work, maybe too small somehow?
+MAKE_AUTO_HOOK_MATCH(
+    TutorialScenesTransitionSetupDataSO_Init,
+    &TutorialScenesTransitionSetupDataSO::Init,
+    void,
+    TutorialScenesTransitionSetupDataSO* self,
+    PlayerSpecificSettings* settings
+) {
+    TutorialScenesTransitionSetupDataSO_Init(self, settings);
+
+    auto setupData = (TutorialSceneSetupData*) self->_sceneSetupDataArray[2];
+    CustomModels::colorScheme = setupData->colorScheme;
+    CustomModels::modifiers = nullptr;
 }
 
 // enable menu pointers
