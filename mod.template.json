@@ -9,6 +9,9 @@
   "packageVersion": "1.40.7_7060",
   "description": "Lets you play with custom models for sabers, notes, and walls!",
   "dependencies": [],
+  "lateModFiles": [
+    "${binary}"
+  ],
   "libraryFiles": [],
   "fileCopies": [],
   "copyExtensions": [
